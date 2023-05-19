@@ -12,10 +12,12 @@ export const AppLayout = (props: HTMLProps<void>) => {
                 <Row>
                     <Col>
                         <Row>
-                            <img src='/logo.png' className="logo" />
-                            <div className="logo_name">
-                                Upgradehub
-                            </div>
+                            <a href="https://upgradehub.xyz">
+                                <img src='/logo.png' className="logo" />
+                                <div className="logo_name">
+                                    Upgradehub
+                                </div>
+                            </a>
                         </Row>
                     </Col>
                     <Col className="space_header">
