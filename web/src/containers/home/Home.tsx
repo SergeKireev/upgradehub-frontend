@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Col, Form, Input, Select } from "antd"
 import { AppLayout } from '../common/AppLayout';
-import { BASE_URL } from '../../config/api';
 import { Navigate } from 'react-router-dom';
 
 

@@ -12,7 +12,7 @@ export const AppLayout = (props: HTMLProps<void>) => {
                 <Row>
                     <Col>
                         <Row>
-                            <img src='/assets/logo.png' className="logo" />
+                            <img src='/logo.png' className="logo" />
                             <div className="logo_name">
                                 Upgradehub
                             </div>

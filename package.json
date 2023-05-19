@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build-dev": "webpack --mode=development --watch",
+    "build-dev": "cp dev/index.html web/dist/index.html && cp web/assets/logo.png web/dist/logo.png && webpack serve --mode=development",
     "build-watch": "webpack --watch",
     "build": "webpack --mode=production",
     "webpack-debug": "webpack --help"

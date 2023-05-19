@@ -30,4 +30,13 @@ module.exports = [{
     }, 
     extensions: ['.tsx', '.ts', '.js'],
   },
+  devServer: {
+    port: 3001,
+    historyApiFallback: {
+      index: 'index.html'
+    },
+    static: {
+      directory: path.join(__dirname, "web/dist"),
+    },
+  }
 }]
