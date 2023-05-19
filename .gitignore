@@ -1,0 +1,10 @@
+out.csv
+node_modules/
+build/
+new/
+old/
+.env
+diffs
+downloaded
+web/dist
+app/.env

@@ -1,0 +1,228 @@
+body {
+    background-color: white;
+    margin: 0px;
+    font-family: 'Courier New', Courier, monospace;
+    color: rgb(0, 21, 41);
+}
+
+.content {}
+
+.upgrade_selector {
+    padding: 10px
+}
+
+.logo {
+    max-width: 40px;
+    max-height: 40px;
+    margin: 12px;
+    margin-left: 0px;
+}
+
+.logo_name {
+    font-size: 20px;
+    color: white;
+    font-weight: 500;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.space_header {
+    display: flex;
+    flex: 1
+}
+
+.header_socials {
+    color: white;
+
+    a {
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 500;
+        margin-left: 20px;
+    }
+
+    a:link {
+        color: white;
+        animation: ease-out;
+        text-decoration: none;
+    }
+
+    a:visited {
+        color: white;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #ffffffaf;
+        animation: ease-in;
+        text-decoration: none;
+    }
+
+    a:active {
+        color: #ffffffdf;
+        text-decoration: none;
+    }
+}
+
+.file_change {
+    margin: 20px;
+    border: solid 1px rgba($color: #000000, $alpha: 0.2);
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 17px;
+    background-color: white;
+}
+
+.file_header {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    padding: 10px 20px;
+    padding-top: 11px;
+    color: white;
+    margin: -1px;
+    background-color: rgb(0, 21, 41);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.diff-gutter-omit {
+    background-color: white;
+}
+
+.diff-code-omit {
+    background-color: white;
+}
+
+.diff-hunk {
+    margin: 10px 0px;
+}
+
+.hunk-header {
+    padding: 8px 20px !important;
+    padding-top: 10px !important;
+    line-height: 13px !important;
+    background-color: rgba($color: #000000, $alpha: 0.02);
+}
+
+.links_row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    padding: 0px 20px;
+    margin-top: 20px;
+
+    a {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 12px;
+        font-weight: 400;
+    }
+
+    a:link {
+        color: rgb(0, 21, 41);
+        animation: ease-out;
+        text-decoration: none;
+    }
+
+    a:visited {
+        color: rgb(0, 21, 41);
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #0000002f;
+        animation: ease-in;
+        text-decoration: none;
+    }
+
+    a:active {
+        color: #0000009f;
+        text-decoration: none;
+    }
+}
+
+.ant-result-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 500;
+}
+
+.ant-col {
+    font-family: 'Courier New', Courier, monospace;
+    color: rgb(0, 21, 41);
+}
+
+.loading_content {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.home_content {
+    width: 100%;
+    background-color: white;
+}
+
+.home_form {
+    margin-top: 50px;
+}
+
+.hunk_container {
+    width: 100%;
+}
+
+.hunk-expand {
+    cursor: pointer;
+    background-color: #1677ff22;
+    animation: ease-out;
+}
+
+.hunk-expand:hover {
+    color: #0000002f;
+    background-color: #1677ff44;
+    animation: ease-in;
+    text-decoration: none;
+}
+
+.hunk-expand:active {
+    color: #0000009f;
+    background-color: #0000002f;
+    text-decoration: none;
+}
+
+.last-hunk-expand {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.hunk-expand-icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 10px;
+    padding: 5px;
+}
+
+.hunk-expand-too-large {
+    cursor: pointer;
+    background-color: #1677ff22;
+    animation: ease-out;
+}
+
+.hunk-expand-too-large:hover {
+    background-color: #1677ff44;
+    animation: ease-in;
+    text-decoration: none;
+}
+
+.hunk-expand-too-large:active {
+    background-color: #0000002f;
+    text-decoration: none;
+}
+
+.hunk-expand-too-large-icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 10px;
+    padding: 10px;
+}
