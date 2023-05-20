@@ -8,3 +8,6 @@ Install:
 
 Build with webpack/watch:
 > npm run build-dev
+
+A local version of the frontend is now accessible at
+http://localhost:3001/
