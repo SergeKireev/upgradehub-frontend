@@ -11,7 +11,7 @@ export const RegularHunk = (props: RegularHunkProps) => {
     const [hunk, setHunk] = useState(props.hunk);
     return <HiddenLargeHunk
         hunk={hunk}
-        setHunk={setHunk}
+        updateHunk={setHunk}
         isLast={props.isLast} >
         <Hunk key={hunk.content} hunk={hunk} />
     </HiddenLargeHunk>

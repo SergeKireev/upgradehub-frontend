@@ -40,7 +40,7 @@ function renderContent(
         return <DiffRender
             key={selectedUpgrade.current_impl}
             network={selectedUpgrade.network}
-            address={selectedUpgrade.current_impl}
+            address={selectedUpgrade.previous_impl}
             diff={selectedUpgrade.diff} />
     } else if (selectedUpgrade && !selectedUpgrade.verified) {
         return <InfoContent

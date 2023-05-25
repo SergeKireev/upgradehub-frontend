@@ -1,8 +1,10 @@
 import { ApiName, fetchFiles } from 'ethereum-sources-downloader';
-import React, { useEffect, useState } from 'react'
-import { parseDiff, Diff, Decoration } from 'react-diff-view';
+import React, { useEffect, useMemo, useState } from 'react'
+import { tokenize, parseDiff, Diff, Decoration } from 'react-diff-view';
 import { ExpandableHunk, HunkObject } from './hunk/ExpandableHunk';
 import { RegularHunk } from './hunk/RegularHunk';
+import * as refractor from 'refractor'
+import { v4 as uuidv4 } from 'uuid'
 
 const trimFilePath = (filePath: string) => {
     const fragments = filePath.split('/')
@@ -15,46 +17,124 @@ interface DiffRenderProps {
     diff?: string,
 }
 
-async function fetchNewCode(
+async function fetchOldCode(
     network: string,
     address: string,
-    setNewCode: (codeFetchResult: any) => void) {
+    setOldCode: (codeFetchResult: any) => void) {
     /**
      * Everything should be fine since we have already check the source 
      * has verified code and is not a proxy
      */
     const response = await fetchFiles(network as ApiName, address);
-    setNewCode(response);
+    setOldCode(response);
 }
 
-function buildHunk(hunk: HunkObject, fileLines?: string[], isLast?: boolean) {
+function buildHunk(hunk: HunkObject, fileLines?: string[], isLast?: boolean, updateHunk?: (hunk: HunkObject) => void) {
     if (fileLines) {
         return <ExpandableHunk
             key={hunk.content}
             hunk={hunk}
             fileLines={fileLines}
             isLast={isLast}
+            updateHunk={updateHunk}
         />
     } else {
-        return <RegularHunk hunk={hunk} isLast={isLast}/>
+        return <RegularHunk hunk={hunk} isLast={isLast} />
     }
 }
 
-function findLinesInCodeResult(newCode: any, fileName: string) {
-    const emptyNewCode = {
+
+const renderToken = (token, defaultRender, i) => {
+    switch (token.type) {
+        default:
+            return defaultRender(token, i);
+    }
+};
+
+
+function findLinesInCodeResult(oldCode: any, fileName: string) {
+    const emptyOldCode = {
         files: {}
     }
-    const fileContent = (newCode || emptyNewCode).files[fileName]
+    const fileContent = (oldCode || emptyOldCode).files[fileName]
     const fileLines = fileContent?.split('\n')
     return fileLines;
 }
 
+interface RenderDiffProps {
+    hunks: any[],
+    oldCode: string,
+    newPath: string,
+    oldRevision: string,
+    newRevision: string,
+    diffType: string
+}
+
+const RenderDiff = (props: RenderDiffProps) => {
+    const _hunks = props.hunks.map(x => {
+        return {
+            ...x,
+            id: uuidv4()
+        }
+    })
+    const [hunks, setHunks] = useState(_hunks);
+
+    const tokens = tokenize(hunks, {
+        highlight: true,
+        refractor: refractor,
+        language: 'sol',
+        oldCode: props.oldCode
+    });
+
+    const updateHunk = (hunk: HunkObject) => {
+        let newHunks = JSON.parse(JSON.stringify(hunks));
+        newHunks = newHunks.map(x => {
+            if (x.id == hunk.id) {
+                return hunk
+            } else {
+                return x;
+            }
+        })
+        setHunks(newHunks);
+    }
+
+    return <Diff
+        key={props.oldRevision + '-' + props.newRevision}
+        viewType="split"
+        diffType={props.diffType}
+        tokens={tokens}
+        renderToken={renderToken}
+        hunks={hunks}>
+        {
+            hunks => {
+                return hunks.map(
+                    (hunk, i) => ([
+                        <Decoration key={`${hunk.content}-decoration`}>
+                            <div className='hunk-header'>
+                                {`@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@`}
+                            </div>
+                        </Decoration>,
+                        buildHunk(hunk,
+                            findLinesInCodeResult(
+                                props.oldCode,
+                                trimFilePath(props.newPath)
+                            ),
+                            i === hunks.length - 1,
+                            updateHunk)
+                    ])
+                ).flat()
+            }
+        }
+    </Diff>
+}
+
 export function DiffRender(props: DiffRenderProps) {
     const diffText = props.diff
-    const [newCode, setNewCode] = useState(undefined);
+    const [oldCode, setOldCode] = useState(undefined);
+
     useEffect(() => {
-        fetchNewCode(props.network, props.address, setNewCode);
-    }, [setNewCode])
+        fetchOldCode(props.network, props.address, setOldCode);
+    }, [setOldCode])
 
     const files = parseDiff(diffText);
     //Leave error.md only if it is the only file
@@ -63,27 +143,14 @@ export function DiffRender(props: DiffRenderProps) {
     const renderFile = ({ newPath, oldRevision, newRevision, type, hunks }) => (
         <div className='file_change'>
             <div className='file_header'>{trimFilePath(newPath)}</div>
-            <Diff key={oldRevision + '-' + newRevision} viewType="split" diffType={type} hunks={hunks}>
-                {
-                    hunks => {
-                        return hunks.map(
-                            (hunk, i) => ([
-                                <Decoration key={`${hunk.content}-decoration`}>
-                                    <div className='hunk-header'>
-                                        {`@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@`}
-                                    </div>
-                                </Decoration>,
-                                buildHunk(hunk,
-                                    findLinesInCodeResult(
-                                        newCode,
-                                        trimFilePath(newPath)
-                                    ),
-                                    i === hunks.length - 1)
-                            ])
-                        ).flat()
-                    }
-                }
-            </Diff>
+            <RenderDiff
+                hunks={hunks}
+                oldCode={oldCode}
+                newPath={newPath}
+                oldRevision={oldRevision}
+                newRevision={newRevision}
+                diffType={type}
+            />
         </div>
     );
 

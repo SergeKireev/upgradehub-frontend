@@ -17,7 +17,9 @@
     "moment": "^2.29.4",
     "react-diff-view": "^2.4.10",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.9.0"
+    "react-router-dom": "^6.9.0",
+    "refractor": "^3.6.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",

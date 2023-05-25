@@ -7,6 +7,7 @@ interface ExpandableHunkProps {
     fileLines: string[]
     hunk: HunkObject
     isLast: boolean
+    updateHunk: (hunk: HunkObject) => void
 }
 
 export interface HunkObject {
@@ -17,7 +18,8 @@ export interface HunkObject {
     "newLines": number,
     "changes": Change[],
     "isPlain": boolean,
-    'expanded'?: boolean
+    'expanded'?: boolean,
+    id?: string
 }
 
 interface Change {
@@ -46,7 +48,7 @@ const expandHunkObjectUp = (prevHunk: HunkObject,
     if (newStart + nbLines >= 0) {
         const _oldStart = prevHunk.oldStart - nbLines - 1 >= 0 ? prevHunk.oldStart - nbLines - 1 : 0;
         const _newStart = newStart >= 0 ? newStart : 0
-        const fileLinesToAdd: string[] = fileLines.slice(_newStart, newStart + nbLines);
+        const fileLinesToAdd: string[] = fileLines.slice(_oldStart, _oldStart + nbLines);
         const normalChangesToAdd = fileLinesToAdd.map((l, i) => {
             //Offset by 1 since lines are 1-starting
             return buildNormalChangeFromLine(l, _newStart + i + 1, _oldStart + i + 1);
@@ -62,6 +64,7 @@ const expandHunkObjectUp = (prevHunk: HunkObject,
             expanded: true,
             changes: newChanges,
         };
+
         return newHunkObject;
     } else {
         return prevHunk;
@@ -102,7 +105,6 @@ const expandHunkObjectDown = (prevHunk: HunkObject,
 }
 
 export const ExpandableHunk = (props: ExpandableHunkProps) => {
-    const [hunk, setHunk] = useState(props.hunk);
     const lastClass = props.isLast ? 'hunk-expand last-hunk-expand' : 'hunk-expand';
 
     const N = 20;
@@ -111,22 +113,22 @@ export const ExpandableHunk = (props: ExpandableHunkProps) => {
     const [hunkDownEnabled, disableHunkDown] = useState(true);
 
     const expandUp = () => {
-        const newHunk = expandHunkObjectUp(hunk, N, props.fileLines);
-        setHunk(newHunk);
+        const newHunk = expandHunkObjectUp(props.hunk, N, props.fileLines);
+        props.updateHunk(newHunk);
     }
 
     const expandDown = () => {
-        const newHunk = expandHunkObjectDown(hunk, N, props.fileLines);
-        setHunk(newHunk);
+        const newHunk = expandHunkObjectDown(props.hunk, N, props.fileLines);
+        props.updateHunk(newHunk);
     }
-    if (hunkUpEnabled && hunk.newStart <= 1) {
+    if (hunkUpEnabled && props.hunk.newStart <= 1) {
         disableHunkUp(false);
     }
-    if (hunkDownEnabled && hunk.newStart+hunk.newLines >= props.fileLines.length) {
+    if (hunkDownEnabled && props.hunk.newStart+props.hunk.newLines >= props.fileLines.length) {
         disableHunkDown(false);
     }
     return <>
-        <HiddenLargeHunk hunk={hunk} setHunk={setHunk} isLast={props.isLast}>
+        <HiddenLargeHunk hunk={props.hunk} updateHunk={props.updateHunk} isLast={props.isLast}>
             {hunkUpEnabled ?
                 <Decoration>
                     <div className='hunk-expand' onClick={expandUp}>
@@ -139,7 +141,7 @@ export const ExpandableHunk = (props: ExpandableHunkProps) => {
                 </Decoration>
                 : <></>
             }
-            <Hunk key={hunk.content} hunk={hunk} />
+            <Hunk key={props.hunk.content} hunk={props.hunk} />
             {hunkDownEnabled ?
                 <Decoration>
                     <div className={lastClass} onClick={expandDown}>

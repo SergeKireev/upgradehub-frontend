@@ -6,7 +6,7 @@ import { Col } from 'antd'
 
 interface HiddenLargeHunkProps {
     hunk: HunkObject
-    setHunk: (hunk: HunkObject) => void
+    updateHunk: (hunk: HunkObject) => void
     isLast: boolean
 }
 
@@ -17,7 +17,7 @@ export const HiddenLargeHunk = (props: HiddenLargeHunkProps & HTMLProps<void>) =
             ...(props.hunk),
             expanded: true
         }
-        props.setHunk(newHunk);
+        props.updateHunk(newHunk);
     }
 
     const HUNK_SIZE_LIMIT = 200
