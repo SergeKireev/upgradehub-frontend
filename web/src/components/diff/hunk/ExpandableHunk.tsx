@@ -78,7 +78,7 @@ const expandHunkObjectDown = (prevHunk: HunkObject,
         const newEnd = prevHunk.newStart + prevHunk.newLines + nbLines;
         const _newEnd = newEnd > fileLines.length ? fileLines.length : newEnd;
         const fileLinesToAdd: string[] = fileLines.slice(
-            prevHunk.newStart + prevHunk.newLines,
+            prevHunk.oldStart + prevHunk.oldLines,
             _newEnd
         );
         const normalChangesToAdd = fileLinesToAdd.map((l, i) => {
