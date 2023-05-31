@@ -75,11 +75,11 @@ const expandHunkObjectDown = (prevHunk: HunkObject,
     nbLines: number,
     fileLines: string[]) => {
     if (prevHunk.newStart + prevHunk.newLines < fileLines.length) {
-        const newEnd = prevHunk.newStart + prevHunk.newLines + nbLines;
-        const _newEnd = newEnd > fileLines.length ? fileLines.length : newEnd;
+        const oldEnd = prevHunk.oldStart + prevHunk.oldLines + nbLines;
+        const _oldEnd = oldEnd > fileLines.length ? fileLines.length : oldEnd;
         const fileLinesToAdd: string[] = fileLines.slice(
             prevHunk.oldStart + prevHunk.oldLines,
-            _newEnd
+            _oldEnd
         );
         const normalChangesToAdd = fileLinesToAdd.map((l, i) => {
             //Offset by 1 since lines are 1-starting ??
