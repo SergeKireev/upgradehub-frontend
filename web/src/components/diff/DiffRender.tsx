@@ -56,7 +56,10 @@ function findLinesInCodeResult(oldCode: any, fileName: string) {
     const emptyOldCode = {
         files: {}
     }
-    const fileContent = (oldCode || emptyOldCode).files[fileName]
+    const key = Object.keys((oldCode || emptyOldCode).files).find(x => {
+        return x.trim() === fileName.trim();
+    });
+    const fileContent = (oldCode || emptyOldCode).files[key];
     const fileLines = fileContent?.split('\n')
     return fileLines;
 }
@@ -64,7 +67,7 @@ function findLinesInCodeResult(oldCode: any, fileName: string) {
 interface RenderDiffProps {
     hunks: any[],
     oldCode: string,
-    newPath: string,
+    oldPath: string,
     oldRevision: string,
     newRevision: string,
     diffType: string
@@ -117,7 +120,7 @@ const RenderDiff = (props: RenderDiffProps) => {
                         buildHunk(hunk,
                             findLinesInCodeResult(
                                 props.oldCode,
-                                trimFilePath(props.newPath)
+                                trimFilePath(props.oldPath)
                             ),
                             i === hunks.length - 1,
                             updateHunk)
@@ -140,13 +143,13 @@ export function DiffRender(props: DiffRenderProps) {
     //Leave error.md only if it is the only file
     const filesWithoutError = files.length > 1 ? files.filter(f => !f.newPath.includes('error.md')) : files
 
-    const renderFile = ({ newPath, oldRevision, newRevision, type, hunks }) => (
+    const renderFile = ({ oldPath, newPath, oldRevision, newRevision, type, hunks }) => (
         <div className='file_change'>
             <div className='file_header'>{trimFilePath(newPath)}</div>
             <RenderDiff
                 hunks={hunks}
                 oldCode={oldCode}
-                newPath={newPath}
+                oldPath={oldPath}
                 oldRevision={oldRevision}
                 newRevision={newRevision}
                 diffType={type}
