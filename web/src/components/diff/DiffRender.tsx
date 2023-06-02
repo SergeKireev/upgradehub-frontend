@@ -73,6 +73,50 @@ interface RenderDiffProps {
     diffType: string
 }
 
+const mergeHunks = (hunkA: HunkObject, hunkB: HunkObject) => {
+    let _hunkA = hunkA
+    let _hunkB = hunkB
+    if (hunkA.oldStart > hunkB.oldStart) {
+        let tmp = _hunkA
+        _hunkA = hunkB
+        _hunkB = tmp
+    }
+    
+    const newOldLineNumberIndex = hunkA.changes.findIndex(x => x.oldLineNumber === hunkB.oldStart);
+    const newChanges =
+        hunkA.changes
+            .slice(0, newOldLineNumberIndex)
+            .concat(hunkB.changes)
+
+    const result: HunkObject = {
+        ...hunkA,
+        newLines: (hunkB.newStart - hunkA.newStart) + hunkB.newLines,
+        oldLines: (hunkB.oldStart - hunkA.oldStart) + hunkB.oldLines,
+        newStart: hunkA.newStart,
+        oldStart: hunkA.oldStart,
+        changes: newChanges
+    }
+    return result;
+}
+
+const deduplicateHunks = (hunks: HunkObject[], updatedId: string) => {
+    const updatedHunk = hunks.find(x => x.id === updatedId);
+    const overlapping = hunks.find(x => {
+        return x.id != updatedId &&
+            ((x.oldStart >= updatedHunk.oldStart && x.oldStart <= updatedHunk.oldStart + updatedHunk.oldLines) || (updatedHunk.oldStart >= x.oldStart && x.oldStart + x.oldLines >= updatedHunk.oldStart))
+    })
+    if (overlapping) {
+        const _hunks = hunks.filter(x => {
+            return x.id != updatedId && x.id != overlapping.id
+        })
+        .concat([mergeHunks(updatedHunk, overlapping)])
+        _hunks.sort((a, b) => a.oldStart - b.oldStart);
+        return _hunks;
+    } else {
+        return hunks;
+    }
+}
+
 const RenderDiff = (props: RenderDiffProps) => {
     const _hunks = props.hunks.map(x => {
         return {
@@ -98,7 +142,8 @@ const RenderDiff = (props: RenderDiffProps) => {
                 return x;
             }
         })
-        setHunks(newHunks);
+        const _newHunks = JSON.parse(JSON.stringify(deduplicateHunks(newHunks, hunk.id)));
+        setHunks(_newHunks);
     }
 
     return <Diff

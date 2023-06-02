@@ -48,19 +48,20 @@ const expandHunkObjectUp = (prevHunk: HunkObject,
     if (newStart + nbLines >= 0) {
         const _oldStart = prevHunk.oldStart - nbLines - 1 >= 0 ? prevHunk.oldStart - nbLines - 1 : 0;
         const _newStart = newStart >= 0 ? newStart : 0
-        const fileLinesToAdd: string[] = fileLines.slice(_oldStart, _oldStart + nbLines);
+        const fileLinesToAdd: string[] = fileLines.slice(_oldStart, prevHunk.oldStart - 1);
         const normalChangesToAdd = fileLinesToAdd.map((l, i) => {
             //Offset by 1 since lines are 1-starting
             return buildNormalChangeFromLine(l, _newStart + i + 1, _oldStart + i + 1);
         })
         const newChanges = normalChangesToAdd.concat(prevHunk.changes);
+        const _nbLines = fileLinesToAdd.length;
 
         const newHunkObject: HunkObject = {
             ...prevHunk,
-            newStart: prevHunk.newStart - nbLines,
-            oldStart: prevHunk.oldStart - nbLines,
-            newLines: prevHunk.newLines + nbLines,
-            oldLines: prevHunk.oldLines + nbLines,
+            newStart: prevHunk.newStart - _nbLines,
+            oldStart: prevHunk.oldStart - _nbLines,
+            newLines: prevHunk.newLines + _nbLines,
+            oldLines: prevHunk.oldLines + _nbLines,
             expanded: true,
             changes: newChanges,
         };
@@ -91,13 +92,13 @@ const expandHunkObjectDown = (prevHunk: HunkObject,
         })
         const newChanges = prevHunk.changes.concat(normalChangesToAdd);
 
-        const newHunkObject: HunkObject = {
+        const newHunkObject: HunkObject = JSON.parse(JSON.stringify({
             ...prevHunk,
             newLines: prevHunk.newLines + nbLines,
             oldLines: prevHunk.oldLines + nbLines,
             expanded: true,
             changes: newChanges,
-        };
+        }));
         return newHunkObject;
     } else {
         return prevHunk;
@@ -121,10 +122,10 @@ export const ExpandableHunk = (props: ExpandableHunkProps) => {
         const newHunk = expandHunkObjectDown(props.hunk, N, props.fileLines);
         props.updateHunk(newHunk);
     }
-    if (hunkUpEnabled && props.hunk.newStart <= 1) {
+    if (hunkUpEnabled && props.hunk.oldStart <= 1) {
         disableHunkUp(false);
     }
-    if (hunkDownEnabled && props.hunk.newStart+props.hunk.newLines >= props.fileLines.length) {
+    if (hunkDownEnabled && props.hunk.oldStart+props.hunk.oldLines >= props.fileLines.length) {
         disableHunkDown(false);
     }
     return <>
@@ -141,7 +142,7 @@ export const ExpandableHunk = (props: ExpandableHunkProps) => {
                 </Decoration>
                 : <></>
             }
-            <Hunk key={props.hunk.content} hunk={props.hunk} />
+            <Hunk key={JSON.stringify(props.hunk.content)} hunk={props.hunk} />
             {hunkDownEnabled ?
                 <Decoration>
                     <div className={lastClass} onClick={expandDown}>
