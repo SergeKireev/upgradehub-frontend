@@ -7,7 +7,6 @@ import {
     useMatch,
 } from "react-router-dom";
 import { SingleDiffContainer } from './containers/diff/SingleDiffContainer';
-import { MultiDiffContainer } from './containers/diff/MultiDiffContainer';
 import { HomeContent } from './containers/home/Home';
 import { AppLayout } from './containers/common/AppLayout';
 import { Layout } from 'antd';

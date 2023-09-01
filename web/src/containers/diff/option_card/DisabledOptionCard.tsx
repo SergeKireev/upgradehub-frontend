@@ -11,11 +11,15 @@ export interface DisabledOptionCardProps {
     upgrade: Upgrade
 }
 
+function isPreviousEqualCurrent(upgrade: Upgrade) {
+    return upgrade.current_impl === upgrade.previous_impl;
+}
+
 export const DisabledOptionCard = (props: DisabledOptionCardProps) => {
     return <>
         <Row>
             <div style={{
-               fontSize: 11
+                fontSize: 11
             }}>
                 {
                     formatDate(props.upgrade.ts)
@@ -23,7 +27,11 @@ export const DisabledOptionCard = (props: DisabledOptionCardProps) => {
             </div>
         </Row>
         <Row>
-            <Tag color="gold">Diff unavailable</Tag>
+            {
+                isPreviousEqualCurrent(props.upgrade) ?
+                    <Tag color="gold">Empty diff</Tag> :
+                    <Tag color="gold">Diff unavailable</Tag>
+            }
         </Row>
     </>
 }

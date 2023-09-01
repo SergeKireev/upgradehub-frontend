@@ -4,7 +4,7 @@ import { Upgrade } from "../../lib/upgrade"
 import { DiffOptionCard } from './option_card/DiffOptionCard'
 import { useSearchParams } from 'react-router-dom';
 import { DisabledOptionCard } from './option_card/DisabledOptionCard';
-import { getKey } from './MultiDiffContainer';
+import { getKey } from '../../lib/utils/format';
 
 interface DiffSelectorProps {
     upgrades: Upgrade[];

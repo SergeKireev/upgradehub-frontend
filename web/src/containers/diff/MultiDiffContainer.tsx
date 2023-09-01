@@ -9,6 +9,7 @@ import { ErrorContent } from '../../components/error/ErrorContent';
 import { Loading } from '../../components/loading/Loading';
 import { InfoContent } from '../../components/error/InfoContent';
 import { BaseParams } from '../../app';
+import { fillPreviousImpl, formatUpgrades } from '../../lib/utils/format';
 
 interface MultiDiffContainerPropsData {
     error?: string,
@@ -42,6 +43,9 @@ function renderContent(
             network={selectedUpgrade.network}
             address={selectedUpgrade.previous_impl}
             diff={selectedUpgrade.diff} />
+    } else if (selectedUpgrade && !selectedUpgrade.verified && selectedUpgrade.current_impl === selectedUpgrade.previous_impl) {
+        return <InfoContent
+            info={'Code diff is empty'} />
     } else if (selectedUpgrade && !selectedUpgrade.verified) {
         return <InfoContent
             info={'Code diff unavailable for this upgrade'} />
@@ -50,37 +54,12 @@ function renderContent(
     }
 }
 
-export const getKey = (u: Upgrade) => {
-    return `${u.proxy_address.toLowerCase()}${u.current_impl.toLowerCase()}${u.tx_hash}`;
-}
-
-export const deduplicateUpgrades = (upgrades: Upgrade[]): Upgrade[] => {
-    const seen = {}
-    const newUpgrades = []
-    upgrades.forEach(u => {
-        if (!seen[getKey(u)]) {
-            seen[getKey(u)] = true
-            newUpgrades.push(u);
-        }
-    })
-    return newUpgrades;
-}
-
-
 export function MultiDiffContainer(props: MultiDiffContainerProps) {
     const [selectedUpgrade, setSelectedUpgrade] = useState(undefined);
     const pathParams = props.getPathParams(props);
 
-    let upgrades = props.data?.upgrades || [];
-    upgrades = upgrades.sort((a, b) => {
-        if (a.ts < b.ts)
-            return 1;
-        else if (a.ts > b.ts)
-            return -1;
-        else return 0;
-    })
-    upgrades = deduplicateUpgrades(upgrades);
-
+    let upgrades = formatUpgrades(props.data?.upgrades || []);
+    fillPreviousImpl(upgrades);
     if (props.data?.upgrades && props.data?.upgrades.length && !selectedUpgrade) {
         setSelectedUpgrade(upgrades[0]);
     }
