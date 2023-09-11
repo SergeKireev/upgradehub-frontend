@@ -2,11 +2,7 @@ import React from 'react'
 import { Upgrade } from '../../../lib/upgrade';
 import { parseDiff } from 'react-diff-view';
 import { Row, Tag } from 'antd';
-
-const formatDate = (ts: string) => {
-    const m = new Date(parseInt(ts));
-    return `${m.toDateString()} ${m.toLocaleTimeString()}`
-}
+import { formatDate } from '../../../lib/utils/format';
 
 export interface DiffOptionCardProps {
     upgrade: Upgrade
@@ -32,7 +28,7 @@ export const DiffOptionCard = (props: DiffOptionCardProps) => {
         <Row>
             <div className='upgrade_selector_date'>
                 {
-                    formatDate(props.upgrade.ts)
+                    formatDate(parseInt(props.upgrade.ts))
                 }
             </div>
         </Row>

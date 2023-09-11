@@ -12,6 +12,8 @@ import { BaseParams } from '../../app';
 import { fillPreviousImpl, fillVerified, formatUpgrades } from '../../lib/utils/format';
 import { VerifiedStatus } from '../../lib/verified_status';
 import { BASE_URL } from '../../config/api';
+import { SyncStatusData } from '../../lib/sync_status';
+import { ApiName } from 'ethereum-sources-downloader';
 
 interface MultiDiffContainerPropsData {
     error?: string,
@@ -44,6 +46,35 @@ async function fetchVerifiedStatuses(address: string, network: string): Promise<
         const json = await response.json()
         if (json.status === 'ok') {
             return json.data;
+        } else if (json.status === 'nok') {
+            console.error('Error during fetch of verified status of implementations');
+            return undefined;
+        }
+    }
+}
+
+async function fetchSyncStatus(address: string, network: ApiName): Promise<SyncStatusData> {
+    const response = await fetch(
+        `${BASE_URL}/request_scan_status`,
+        {
+            method: 'POST',
+            body: JSON.stringify({
+                address: address,
+                network: network
+            }),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }
+    )
+
+    if (response) {
+        const json = await response.json()
+        if (json.status === 'ok') {
+            return json.data && {
+                processing: json.data?.requested,
+                last_update_ts: json.data?.latest_update_ts
+            };
         } else if (json.status === 'nok') {
             console.error('Error during fetch of verified status of implementations');
             return undefined;
@@ -100,6 +131,11 @@ function renderContent(
 export function MultiDiffContainer(props: MultiDiffContainerProps) {
     const [selectedUpgrade, setSelectedUpgrade] = useState(undefined);
     const [verifiedImpls, setVerifiedImpls] = useState(undefined);
+    const defaultSyncStatus: SyncStatusData = {
+        processing: true,
+        last_update_ts: '0'
+    }
+    const [syncStatus, setSyncStatus] = useState(defaultSyncStatus);
     const pathParams = props.getPathParams(props);
 
     let upgrades = formatUpgrades(props.data?.upgrades || []);
@@ -108,6 +144,10 @@ export function MultiDiffContainer(props: MultiDiffContainerProps) {
     useEffect(() => {
         fetchVerifiedStatuses(pathParams.address, pathParams.network).then(x => {
             setVerifiedImpls(x);
+        }).catch(e => undefined)
+
+        fetchSyncStatus(pathParams.address, pathParams.network as ApiName).then(x => {
+            setSyncStatus(x);
         }).catch(e => undefined)
     }, []);
 
@@ -144,6 +184,7 @@ export function MultiDiffContainer(props: MultiDiffContainerProps) {
                 transaction_hash={selectedUpgrade?.tx_hash}
                 unavailable={selectedUpgrade && !selectedUpgrade.verified}
                 unavailable_reason={selectedUpgrade?.unavailable_reason}
+                sync_status={syncStatus}
             />
             {renderContent(
                 props.data?.info,

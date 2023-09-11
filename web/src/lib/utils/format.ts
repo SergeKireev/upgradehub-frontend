@@ -1,6 +1,11 @@
 import { Upgrade } from "../upgrade";
 import { VerifiedStatus } from "../verified_status";
 
+export const formatDate = (ts: number) => {
+    const m = new Date(ts);
+    return `${m.toDateString()} ${m.toLocaleTimeString()}`
+}
+
 export const getKey = (u: Upgrade) => {
     return `${u.proxy_address.toLowerCase()}${u.current_impl.toLowerCase()}${u.tx_hash}`;
 }
