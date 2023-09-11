@@ -61,10 +61,7 @@ export const DiffSelector = (props: DiffSelectorProps & HTMLProps<void>) => {
                         value={getKey(u)}
                         id={getKey(u)}
                         key={getKey(u)}
-                        style={{
-                            height: 60,
-                            width: 200
-                        }}
+                        className='upgrade_selector_option'
                     >
                         {getOptionCard(u)}
                     </Radio.Button>

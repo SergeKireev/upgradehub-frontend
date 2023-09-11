@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { LinksRow } from '../../components/diff/LinksRow';
 import { DiffRender } from '../../components/diff/DiffRender';
 import { DiffSelector } from './DiffSelector';
@@ -9,7 +9,9 @@ import { ErrorContent } from '../../components/error/ErrorContent';
 import { Loading } from '../../components/loading/Loading';
 import { InfoContent } from '../../components/error/InfoContent';
 import { BaseParams } from '../../app';
-import { fillPreviousImpl, formatUpgrades } from '../../lib/utils/format';
+import { fillPreviousImpl, fillVerified, formatUpgrades } from '../../lib/utils/format';
+import { VerifiedStatus } from '../../lib/verified_status';
+import { BASE_URL } from '../../config/api';
 
 interface MultiDiffContainerPropsData {
     error?: string,
@@ -21,6 +23,51 @@ export interface MultiDiffContainerProps {
     data?: MultiDiffContainerPropsData
     loadingMsg?: string
     getPathParams: (match: any) => BaseParams
+}
+
+async function fetchVerifiedStatuses(address: string, network: string): Promise<VerifiedStatus[]> {
+    const response = await fetch(
+        `${BASE_URL}/verified_impls`,
+        {
+            method: 'POST',
+            body: JSON.stringify({
+                address: address,
+                network: network
+            }),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }
+    )
+
+    if (response) {
+        const json = await response.json()
+        if (json.status === 'ok') {
+            return json.data;
+        } else if (json.status === 'nok') {
+            console.error('Error during fetch of verified status of implementations');
+            return undefined;
+        }
+    }
+}
+
+function getInfoContent(upgrade?: Upgrade) {
+    if (!upgrade.unavailable_reason) {
+        return <InfoContent
+            info={'Code diff unavailable for this upgrade'} />
+    } else if (upgrade.unavailable_reason === 'PREVIOUS_AND_TARGET_UNAVAILABLE') {
+        return <InfoContent
+            info={'Both previous and target implementations are not verified on block explorer'} />
+    } else if (upgrade.unavailable_reason === 'PREVIOUS_UNAVAILABLE') {
+        return <InfoContent
+            info={'Previous implementation is not verified on block explorer'} />
+    } else if (upgrade.unavailable_reason === 'TARGET_UNAVAILABLE') {
+        return <InfoContent
+            info={'Target implementation is not verified on block explorer'} />
+    } else if (upgrade.unavailable_reason === 'PREVIOUS_EQUALS_TARGET') {
+        return <InfoContent
+            info={'Target implementation is the same as previous implementation'} />
+    }
 }
 
 function renderContent(
@@ -43,12 +90,8 @@ function renderContent(
             network={selectedUpgrade.network}
             address={selectedUpgrade.previous_impl}
             diff={selectedUpgrade.diff} />
-    } else if (selectedUpgrade && !selectedUpgrade.verified && selectedUpgrade.current_impl === selectedUpgrade.previous_impl) {
-        return <InfoContent
-            info={'Code diff is empty'} />
-    } else if (selectedUpgrade && !selectedUpgrade.verified) {
-        return <InfoContent
-            info={'Code diff unavailable for this upgrade'} />
+    } else if (selectedUpgrade) {
+        return getInfoContent(selectedUpgrade);
     } else {
         return <></>
     }
@@ -56,10 +99,20 @@ function renderContent(
 
 export function MultiDiffContainer(props: MultiDiffContainerProps) {
     const [selectedUpgrade, setSelectedUpgrade] = useState(undefined);
+    const [verifiedImpls, setVerifiedImpls] = useState(undefined);
     const pathParams = props.getPathParams(props);
 
     let upgrades = formatUpgrades(props.data?.upgrades || []);
     fillPreviousImpl(upgrades);
+
+    useEffect(() => {
+        fetchVerifiedStatuses(pathParams.address, pathParams.network).then(x => {
+            setVerifiedImpls(x);
+        }).catch(e => undefined)
+    }, []);
+
+    fillVerified(upgrades, verifiedImpls);
+
     if (props.data?.upgrades && props.data?.upgrades.length && !selectedUpgrade) {
         setSelectedUpgrade(upgrades[0]);
     }
@@ -90,6 +143,7 @@ export function MultiDiffContainer(props: MultiDiffContainerProps) {
                 oldImpl={selectedUpgrade?.previous_impl}
                 transaction_hash={selectedUpgrade?.tx_hash}
                 unavailable={selectedUpgrade && !selectedUpgrade.verified}
+                unavailable_reason={selectedUpgrade?.unavailable_reason}
             />
             {renderContent(
                 props.data?.info,

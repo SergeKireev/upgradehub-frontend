@@ -30,9 +30,7 @@ export const DiffOptionCard = (props: DiffOptionCardProps) => {
     })
     return <>
         <Row>
-            <div style={{
-                fontSize: 11
-            }}>
+            <div className='upgrade_selector_date'>
                 {
                     formatDate(props.upgrade.ts)
                 }

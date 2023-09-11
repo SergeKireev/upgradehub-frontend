@@ -11,16 +11,24 @@ export interface DisabledOptionCardProps {
     upgrade: Upgrade
 }
 
-function isPreviousEqualCurrent(upgrade: Upgrade) {
-    return upgrade.current_impl === upgrade.previous_impl;
+function renderTag(upgrade: Upgrade) {
+    if (!upgrade.unavailable_reason) {
+        return <Tag color="gold">Diff unavailable</Tag>
+    } else if (upgrade.unavailable_reason === 'PREVIOUS_AND_TARGET_UNAVAILABLE') {
+        return <Tag color="gold">Both impls not verified</Tag>
+    } else if (upgrade.unavailable_reason === 'PREVIOUS_UNAVAILABLE') {
+        return <Tag color="gold">Prev impl not verified</Tag>
+    } else if (upgrade.unavailable_reason === 'TARGET_UNAVAILABLE') {
+        return <Tag color="gold">Target impl not verified</Tag>
+    } else if (upgrade.unavailable_reason === 'PREVIOUS_EQUALS_TARGET') {
+        return <Tag color="gold">Target same as previous</Tag>
+    }
 }
 
 export const DisabledOptionCard = (props: DisabledOptionCardProps) => {
     return <>
         <Row>
-            <div style={{
-                fontSize: 11
-            }}>
+            <div className='upgrade_selector_date'>
                 {
                     formatDate(props.upgrade.ts)
                 }
@@ -28,9 +36,7 @@ export const DisabledOptionCard = (props: DisabledOptionCardProps) => {
         </Row>
         <Row>
             {
-                isPreviousEqualCurrent(props.upgrade) ?
-                    <Tag color="gold">Empty diff</Tag> :
-                    <Tag color="gold">Diff unavailable</Tag>
+                renderTag(props.upgrade)
             }
         </Row>
     </>
