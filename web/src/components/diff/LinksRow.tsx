@@ -41,7 +41,7 @@ function getImplLinks(props: LinksRowProps) {
             <a target='_blank' href={currentImplLink}>View new impl. contract</a>
         </>
     } else if (props.unavailable_reason === 'PREVIOUS_EQUALS_TARGET') {
-        return <a target='_blank' href={currentImplLink}>Impl. code</a>
+        return <a target='_blank' href={currentImplCodeLink}>Impl. code</a>
     } else if (props.unavailable_reason === 'PREVIOUS_AND_TARGET_UNAVAILABLE') {
         return <>
             <a target='_blank' href={prevImplLink}>View old impl. contract</a>
