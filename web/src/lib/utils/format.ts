@@ -55,14 +55,14 @@ export function fillVerified(upgrades: Upgrade[], verified_statuses?: VerifiedSt
             return acc;
         }, {})
         upgrades.forEach(x => {
-            if (!index[x.previous_impl] && !index[x.current_impl]) {
+            if (isPreviousEqualCurrent(x)) {
+                x.unavailable_reason = 'PREVIOUS_EQUALS_TARGET'
+            } else if (!index[x.previous_impl] && !index[x.current_impl]) {
                 x.unavailable_reason = 'PREVIOUS_AND_TARGET_UNAVAILABLE'
             } else if (!index[x.previous_impl]) {
                 x.unavailable_reason = 'PREVIOUS_UNAVAILABLE'
             } else if (!index[x.current_impl]) {
                 x.unavailable_reason = 'TARGET_UNAVAILABLE'
-            } else if (isPreviousEqualCurrent(x)) {
-                x.unavailable_reason = 'PREVIOUS_EQUALS_TARGET'
             }
         })
     }
