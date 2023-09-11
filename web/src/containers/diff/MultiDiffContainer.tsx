@@ -151,7 +151,7 @@ export function MultiDiffContainer(props: MultiDiffContainerProps) {
         fetchSyncStatus(pathParams.address, pathParams.network as ApiName).then(x => {
             setSyncStatus(x);
         }).catch(e => undefined)
-    }, [upgrades])
+    }, [upgrades?.length == 0])
 
     fillVerified(upgrades, verifiedImpls);
 

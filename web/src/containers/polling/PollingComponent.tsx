@@ -68,7 +68,7 @@ export function PollingComponent<T>(props: PollingComponentProps<T> & HTMLProps<
         poll(props.launch, props.fetchStatus, onStatus, setData, setPolling).finally(() => {
             setPolling(false);
         });
-    }, [setPolling, setData])
+    }, [])
 
     let loadingMsg = polling ? 'Processing of upgrades for this address is queued' : undefined;
     return (<>

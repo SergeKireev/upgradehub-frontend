@@ -39,7 +39,6 @@ export function fillPreviousImpl(upgrades: Upgrade[]) {
         if (i < upgrades.length - 1 && u.current_impl === u.previous_impl && !!upgrades[i + 1]) {
             // Upgrades are sorted in reverse order
             u.previous_impl = upgrades[i + 1].current_impl;
-            console.log('Setting previous impl to be', upgrades[i + 1].current_impl);
         }
     })
 }
