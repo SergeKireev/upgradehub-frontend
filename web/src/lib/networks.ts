@@ -8,7 +8,8 @@ export const explorerUrls = {
     cronoscan: "https://cronoscan.com",
     moonbeam: 'https://moonscan.io',
     aurora: 'https://aurorascan.dev',
-    "optimistic.etherscan": 'https://optimistic.etherscan.io'
+    "optimistic.etherscan": 'https://optimistic.etherscan.io',
+    "basescan": 'https://basescan.org'
 };
 
 export const dethExplorerUrls = {
@@ -21,5 +22,6 @@ export const dethExplorerUrls = {
     cronoscan: "https://cronoscan.deth.net",
     moonbeam: 'https://moonscan.deth.net',
     aurora: 'https://aurorascan.deth.net',
-    "optimistic.etherscan": 'https://optimistic.etherscan.deth.net'
+    "optimistic.etherscan": 'https://optimistic.etherscan.deth.net',
+    "basescan": 'https://basescan.deth.net'
 };
