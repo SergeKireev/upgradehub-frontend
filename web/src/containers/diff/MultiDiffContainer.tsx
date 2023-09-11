@@ -145,11 +145,13 @@ export function MultiDiffContainer(props: MultiDiffContainerProps) {
         fetchVerifiedStatuses(pathParams.address, pathParams.network).then(x => {
             setVerifiedImpls(x);
         }).catch(e => undefined)
+    }, []);
 
+    useEffect(() => {
         fetchSyncStatus(pathParams.address, pathParams.network as ApiName).then(x => {
             setSyncStatus(x);
         }).catch(e => undefined)
-    }, []);
+    }, [upgrades])
 
     fillVerified(upgrades, verifiedImpls);
 
