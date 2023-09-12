@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { LinksRow } from '../../components/diff/LinksRow';
 import { DiffRender } from '../../components/diff/DiffRender';
-import { DiffSelector } from './DiffSelector';
+import { DiffSelector } from './selector/DiffSelector';
 import Sider from 'antd/es/layout/Sider';
 import { Content } from 'antd/es/layout/layout';
 import { Upgrade } from '../../lib/upgrade';
@@ -14,6 +14,8 @@ import { VerifiedStatus } from '../../lib/verified_status';
 import { BASE_URL } from '../../config/api';
 import { SyncStatusData } from '../../lib/sync_status';
 import { ApiName } from 'ethereum-sources-downloader';
+import { Skeleton } from 'antd';
+import { SelectorSkeleton } from './selector/SelectorSkeleton';
 
 interface MultiDiffContainerPropsData {
     error?: string,
@@ -160,21 +162,21 @@ export function MultiDiffContainer(props: MultiDiffContainerProps) {
     }
 
     return (<>
-        {
-            upgrades?.length > 0 ?
-                <Sider
-                    width={220}
-                    style={{
-                        background: 'white',
-                    }}>
-                    <div className='upgrade_selector'>
+        <Sider className='sider' style={{
+            background: 'white'
+        }}
+            width={220}>
+            <div className='upgrade_selector'>
+                {
+                    upgrades?.length > 0 ?
                         <DiffSelector
                             upgrades={upgrades || []}
                             setSelectedDiff={setSelectedUpgrade}
-                        />
-                    </div>
-                </Sider> : <></>
-        }
+                        /> :
+                        <SelectorSkeleton />
+                }
+            </div>
+        </Sider>
         <Content style={{
             background: 'white'
         }}>
