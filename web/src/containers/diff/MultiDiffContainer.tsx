@@ -9,7 +9,7 @@ import { ErrorContent } from '../../components/error/ErrorContent';
 import { Loading } from '../../components/loading/Loading';
 import { InfoContent } from '../../components/error/InfoContent';
 import { BaseParams } from '../../app';
-import { fillPreviousImpl, fillVerified, formatUpgrades } from '../../lib/utils/format';
+import { fillPreviousImpl, fillVerified, formatUpgrades, trimFirstUpgradeIfEmpty } from '../../lib/utils/format';
 import { VerifiedStatus } from '../../lib/verified_status';
 import { BASE_URL } from '../../config/api';
 import { SyncStatusData } from '../../lib/sync_status';
@@ -156,6 +156,7 @@ export function MultiDiffContainer(props: MultiDiffContainerProps) {
     }, [upgrades?.length == 0])
 
     fillVerified(upgrades, verifiedImpls);
+    upgrades = trimFirstUpgradeIfEmpty(upgrades);
 
     if (props.data?.upgrades && props.data?.upgrades.length && !selectedUpgrade) {
         setSelectedUpgrade(upgrades[0]);

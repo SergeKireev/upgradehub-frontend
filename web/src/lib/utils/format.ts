@@ -66,3 +66,7 @@ export function fillVerified(upgrades: Upgrade[], verified_statuses?: VerifiedSt
         })
     }
 }
+
+export function trimFirstUpgradeIfEmpty(upgrades: Upgrade[]) {
+    return upgrades.filter((u, i) => !(u.unavailable_reason === 'PREVIOUS_EQUALS_TARGET' && i === upgrades.length - 1))
+}
