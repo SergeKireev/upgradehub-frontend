@@ -23,29 +23,34 @@ function getImplLinks(props: LinksRowProps) {
     const currentImplLink = `${baseUrl}/address/${props.currentImpl}`
     const prevImplLink = `${baseUrl}/address/${props.oldImpl}`
 
+    const oldImplCodeElement = props.oldImpl ? <a target='_blank' href={oldImplCodeLink}>Old code</a> : <></>
+    const currentImplCodeElement = props.currentImpl ? <a target='_blank' href={currentImplCodeLink}>Target code</a> : <></>
+    const oldImplBlockExplorerElement = props.oldImpl ? <a target='_blank' href={prevImplLink}>View old impl. contract</a> : <></>
+    const currentImplBlockExplorerElement = props.currentImpl ? <a target='_blank' href={currentImplLink}>View target impl. contract</a> : <></>
+
     if (!props.unavailable) {
         return <>
-            <a target='_blank' href={oldImplCodeLink}>Old code</a>
-            <a target='_blank' href={currentImplCodeLink}>New code</a>
+            {oldImplCodeElement}
+            {currentImplCodeElement}
         </>
     }
 
     if (props.unavailable_reason === 'PREVIOUS_UNAVAILABLE') {
         return <>
-            <a target='_blank' href={prevImplLink}>View old impl. contract</a>
-            <a target='_blank' href={currentImplCodeLink}>New code</a>
+            {oldImplBlockExplorerElement}
+            {currentImplCodeElement}
         </>
     } else if (props.unavailable_reason === 'TARGET_UNAVAILABLE') {
         return <>
-            <a target='_blank' href={oldImplCodeLink}>Old code</a>
-            <a target='_blank' href={currentImplLink}>View new impl. contract</a>
+            {oldImplCodeElement}
+            {currentImplBlockExplorerElement}
         </>
     } else if (props.unavailable_reason === 'PREVIOUS_EQUALS_TARGET') {
         return <a target='_blank' href={currentImplCodeLink}>Impl. code</a>
     } else if (props.unavailable_reason === 'PREVIOUS_AND_TARGET_UNAVAILABLE') {
         return <>
-            <a target='_blank' href={prevImplLink}>View old impl. contract</a>
-            <a target='_blank' href={currentImplLink}>View new impl. contract</a>
+            {oldImplBlockExplorerElement}
+            {currentImplBlockExplorerElement}
         </>
     }
     return <></>
