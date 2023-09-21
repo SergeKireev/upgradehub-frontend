@@ -35,7 +35,11 @@ function getImplLinks(props: LinksRowProps) {
         </>
     }
 
-    if (props.unavailable_reason === 'PREVIOUS_UNAVAILABLE') {
+    if (props.unavailable_reason === 'INITIALIZATION') {
+        return currentImplCodeElement
+    } else if (props.unavailable_reason === 'INITIALIZATION_UNVERIFIED') {
+        return currentImplBlockExplorerElement
+    } else if (props.unavailable_reason === 'PREVIOUS_UNAVAILABLE') {
         return <>
             {oldImplBlockExplorerElement}
             {currentImplCodeElement}
@@ -46,7 +50,7 @@ function getImplLinks(props: LinksRowProps) {
             {currentImplBlockExplorerElement}
         </>
     } else if (props.unavailable_reason === 'PREVIOUS_EQUALS_TARGET') {
-        return <a target='_blank' href={currentImplCodeLink}>Impl. code</a>
+        return currentImplCodeElement
     } else if (props.unavailable_reason === 'PREVIOUS_AND_TARGET_UNAVAILABLE') {
         return <>
             {oldImplBlockExplorerElement}

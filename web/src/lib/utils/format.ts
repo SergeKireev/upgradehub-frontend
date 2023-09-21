@@ -1,4 +1,4 @@
-import { Upgrade } from "../upgrade";
+import { INCEPTION_TX_HASH, Upgrade } from "../upgrade";
 import { VerifiedStatus } from "../verified_status";
 
 export const formatDate = (ts: number) => {
@@ -53,8 +53,18 @@ export function fillVerified(upgrades: Upgrade[], verified_statuses?: VerifiedSt
             acc[x.address] = x.verified;
             return acc;
         }, {})
-        upgrades.forEach(x => {
-            if (isPreviousEqualCurrent(x)) {
+        upgrades.forEach((x, i) => {
+            if (i == upgrades.length - 2 &&
+                upgrades[i + 1].tx_hash === INCEPTION_TX_HASH &&
+                upgrades[i + 1].current_impl === x.current_impl) {
+                if (index[x.current_impl]) {
+                    x.unavailable_reason = 'INITIALIZATION'
+                } else {
+                    x.unavailable_reason = 'INITIALIZATION_UNVERIFIED'
+                }
+            } else if (x.tx_hash === INCEPTION_TX_HASH) {
+                x.unavailable_reason = 'INCEPTION'
+            } else if (isPreviousEqualCurrent(x)) {
                 x.unavailable_reason = 'PREVIOUS_EQUALS_TARGET'
             } else if (!index[x.previous_impl] && !index[x.current_impl]) {
                 x.unavailable_reason = 'PREVIOUS_AND_TARGET_UNAVAILABLE'
@@ -68,5 +78,11 @@ export function fillVerified(upgrades: Upgrade[], verified_statuses?: VerifiedSt
 }
 
 export function trimFirstUpgradeIfEmpty(upgrades: Upgrade[]) {
-    return upgrades.filter((u, i) => !(u.unavailable_reason === 'PREVIOUS_EQUALS_TARGET' && i === upgrades.length - 1))
+    // Two cases:
+    // 1. Previously upgrade event emitted during init was labeled as 'PREVIOUS_EQUALS_TARGET' which is unclear, so we don't show it
+    // 2. With the introduction of the phantom event at inception, we can now correctly label Initialization events as 'INITIALIZATION' so we remove
+    // only the inception event
+    return upgrades.filter((u, i) =>
+        !(u.unavailable_reason === 'PREVIOUS_EQUALS_TARGET' && i === upgrades.length - 1) &&
+        !(u.unavailable_reason === 'INCEPTION'))
 }

@@ -100,6 +100,9 @@ function getInfoContent(upgrade?: Upgrade) {
     } else if (upgrade.unavailable_reason === 'PREVIOUS_EQUALS_TARGET') {
         return <InfoContent
             info={'Target implementation is the same as previous implementation'} />
+    } else if (upgrade.unavailable_reason === 'INITIALIZATION' || upgrade.unavailable_reason === 'INITIALIZATION_UNVERIFIED') {
+        return <InfoContent
+            info={'This is the initialization upgrade for the proxy, no code diff available'} />
     }
 }
 

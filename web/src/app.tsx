@@ -75,7 +75,7 @@ async function initializeMultiDiff(
 ) {
     const body = params
     const response = await fetch(
-        `${BASE_URL}/upgrades`,
+        `${BASE_URL}/v2/upgrades`,
         {
             method: 'POST',
             body: JSON.stringify(body),

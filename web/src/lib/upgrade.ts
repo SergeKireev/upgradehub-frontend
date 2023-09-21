@@ -3,6 +3,9 @@ import { UnavailableReason } from "./unavailable_reason"
 
 type Network = keyof typeof networkNames
 
+//Special value
+export const INCEPTION_TX_HASH = '0xcafebebe'
+
 export interface Upgrade {
     proxy_address: string
     previous_impl: string
