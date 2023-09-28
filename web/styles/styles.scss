@@ -240,3 +240,74 @@ body {
     font-size: 10px;
     padding: 10px;
 }
+
+.facet_selector {
+    background-color: #ffffffdf;
+    a:link {
+        color: white;
+        animation: ease-out;
+        text-decoration: none;
+    }
+
+    a:visited {
+        color: white;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #ffffffaf;
+        animation: ease-in;
+        text-decoration: none;
+    }
+
+    a:active {
+        color: #ffffffdf;
+        text-decoration: none;
+    }
+}
+
+.facet_selector_item {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 10px;
+    padding: 10px;
+    
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 500;
+    margin-left: 20px;
+}
+
+.app_breadcrumb {
+    padding: 20px;
+    padding-bottom: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 500;
+    background-color: white;
+}
+
+.diamond_selector_name {
+    padding: 5px;
+}
+
+.diamond_page_content {
+    width: 100%;
+}
+
+.diamond_diff_page_selector_list {
+    margin: 10px 10px 10px 10px;
+    background-color: #b3d7ff30;
+    .diamond_selector_name {
+        font-size: 12px !important;
+        font-weight: 400;
+        padding: 5px;
+    }
+}
+
+.ant-card-head-title {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 500;
+    color: rgb(0, 21, 41);
+    font-size: 14px;
+}

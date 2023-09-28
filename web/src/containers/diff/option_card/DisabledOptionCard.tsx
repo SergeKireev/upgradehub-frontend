@@ -24,6 +24,8 @@ function renderTag(upgrade: Upgrade) {
         return <Tag color="gold">Target same as previous</Tag>
     } else if (upgrade.unavailable_reason === 'INITIALIZATION' || upgrade.unavailable_reason === 'INITIALIZATION_UNVERIFIED') {
         return <Tag color="gold">Initialization</Tag>
+    } else if (upgrade.unavailable_reason === 'REMOVED') {
+        return <Tag color="error">Removed</Tag>
     }
 }
 

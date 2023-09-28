@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { LinksRow } from '../../components/diff/LinksRow';
 import { DiffRender } from '../../components/diff/DiffRender';
 import { DiffSelector } from './selector/DiffSelector';
@@ -14,8 +14,9 @@ import { VerifiedStatus } from '../../lib/verified_status';
 import { BASE_URL } from '../../config/api';
 import { SyncStatusData } from '../../lib/sync_status';
 import { ApiName } from 'ethereum-sources-downloader';
-import { Skeleton } from 'antd';
+import { Breadcrumb, Skeleton } from 'antd';
 import { SelectorSkeleton } from './selector/SelectorSkeleton';
+import { Link } from 'react-router-dom';
 
 interface MultiDiffContainerPropsData {
     error?: string,
@@ -23,7 +24,16 @@ interface MultiDiffContainerPropsData {
     upgrades: Upgrade[],
 }
 
-export interface MultiDiffContainerProps {
+export interface ManagedMultiDiffContainerProps {
+    data?: MultiDiffContainerPropsData
+    loadingMsg?: string
+    description?: ReactNode
+    syncStatus: any
+    address: string
+    network: ApiName
+}
+
+export interface MultiDiffContainerWithStatusFetchProps {
     data?: MultiDiffContainerPropsData
     loadingMsg?: string
     getPathParams: (match: any) => BaseParams
@@ -103,6 +113,9 @@ function getInfoContent(upgrade?: Upgrade) {
     } else if (upgrade.unavailable_reason === 'INITIALIZATION' || upgrade.unavailable_reason === 'INITIALIZATION_UNVERIFIED') {
         return <InfoContent
             info={'This is the initialization upgrade for the proxy, no code diff available'} />
+    } else if (upgrade.unavailable_reason === 'REMOVED') {
+        return <InfoContent
+            info={'The implementation for this functionality has been removed'} />
     }
 }
 
@@ -137,18 +150,17 @@ function renderContent(
     }
 }
 
-export function MultiDiffContainer(props: MultiDiffContainerProps) {
-    const [selectedUpgrade, setSelectedUpgrade] = useState(undefined);
-    const [verifiedImpls, setVerifiedImpls] = useState(undefined);
+export function MultiDiffContainer(props: MultiDiffContainerWithStatusFetchProps) {
     const defaultSyncStatus: SyncStatusData = {
         processing: true,
         last_update_ts: '0'
     }
+
     const [syncStatus, setSyncStatus] = useState(defaultSyncStatus);
+    const [verifiedImpls, setVerifiedImpls] = useState(undefined);
     const pathParams = props.getPathParams(props);
 
     let upgrades = formatUpgrades(props.data?.upgrades || []);
-    fillPreviousImpl(upgrades);
 
     useEffect(() => {
         fetchVerifiedStatuses(pathParams.address, pathParams.network).then(x => {
@@ -162,9 +174,30 @@ export function MultiDiffContainer(props: MultiDiffContainerProps) {
         }).catch(e => undefined)
     }, [upgrades?.length == 0])
 
+
+    fillPreviousImpl(upgrades);
     fillVerified(upgrades, verifiedImpls);
+
     upgrades = trimFirstUpgradeIfEmpty(upgrades);
 
+    return <ManagedMultiDiffContainer
+        syncStatus={syncStatus}
+        data={{
+            ...props.data,
+            //Need this to be undefined when not ready to notify loading state
+            upgrades: props.data?.upgrades ? upgrades : undefined
+        }}
+        loadingMsg={props.loadingMsg}
+        address={pathParams.address}
+        network={pathParams.network as ApiName}
+    />
+}
+
+export function ManagedMultiDiffContainer(props: ManagedMultiDiffContainerProps) {
+    const [selectedUpgrade, setSelectedUpgrade] = useState(undefined);
+
+    const upgrades = props.data.upgrades;
+    console.log(upgrades);
     if (upgrades && upgrades.length && !selectedUpgrade) {
         setSelectedUpgrade(upgrades[0]);
     }
@@ -189,21 +222,26 @@ export function MultiDiffContainer(props: MultiDiffContainerProps) {
             background: 'white'
         }}>
             <LinksRow
-                address={pathParams.address}
+                address={props.address}
                 currentImpl={selectedUpgrade?.current_impl}
-                network={pathParams.network}
+                network={props.network}
                 oldImpl={selectedUpgrade?.previous_impl}
                 transaction_hash={selectedUpgrade?.tx_hash}
                 unavailable={selectedUpgrade && !selectedUpgrade.verified}
                 unavailable_reason={selectedUpgrade?.unavailable_reason}
-                sync_status={syncStatus}
+                sync_status={props.syncStatus}
             />
-            {renderContent(
-                props.data?.info,
-                props.data?.error,
-                !!(props.data?.upgrades),
-                props.loadingMsg,
-                selectedUpgrade)}
+            {
+                props.description
+            }
+            {
+                renderContent(
+                    props.data?.info,
+                    props.data?.error,
+                    !!(props.data?.upgrades),
+                    props.loadingMsg,
+                    selectedUpgrade)
+            }
         </Content>
     </>);
 };

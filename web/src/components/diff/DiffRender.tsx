@@ -39,7 +39,7 @@ function buildHunk(hunk: HunkObject, fileLines?: string[], isLast?: boolean, upd
             updateHunk={updateHunk}
         />
     } else {
-        return <RegularHunk hunk={hunk} isLast={isLast} />
+        return <RegularHunk key={hunk.content} hunk={hunk} isLast={isLast} />
     }
 }
 
@@ -189,7 +189,7 @@ export function DiffRender(props: DiffRenderProps) {
     const filesWithoutError = files.length > 1 ? files.filter(f => !f.newPath.includes('error.md')) : files
 
     const renderFile = ({ oldPath, newPath, oldRevision, newRevision, type, hunks }) => (
-        <div className='file_change'>
+        <div key={trimFilePath(newPath)} className='file_change'>
             <div className='file_header'>{trimFilePath(newPath)}</div>
             <RenderDiff
                 hunks={hunks}
