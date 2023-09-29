@@ -5,97 +5,16 @@ import {
     Routes,
     Route,
     useMatch,
+    Params,
+    Link,
 } from "react-router-dom";
 import { SingleDiffContainer } from './containers/diff/SingleDiffContainer';
 import { HomeContent } from './containers/home/Home';
 import { AppLayout } from './containers/common/AppLayout';
 import { Layout } from 'antd';
 import { PollingMultiDiffContainer } from './containers/diff/PollingMultiDiffContainer';
-
-async function initializeStagingDiff(
-    params: StagingParams,
-    setError?: (err: string) => void) {
-    const response = await fetch(
-        `${BASE_URL}/staging_upgrades/${params.id}`,
-        {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json'
-            }
-        }
-    )
-    if (response) {
-        const json = await response.json()
-        if (json.status === 'ok') {
-            if (json.data.length) {
-                return json.data[json.data.length - 1]
-            }
-        } else if (json.status === 'nok') {
-            setError(json.msg)
-            return undefined;
-        }
-    }
-    setError('Server has returned an empty response');
-    return undefined;
-}
-
-async function initializeDiff(
-    params: BaseParams,
-    setError?: (err: string) => void
-) {
-    const body = params
-
-    const response = await fetch(
-        `${BASE_URL}/upgrades`,
-        {
-            method: 'POST',
-            body: JSON.stringify(body),
-            headers: {
-                'content-type': 'application/json'
-            }
-        }
-    )
-    if (response) {
-        const json = await response.json()
-        if (json.status === 'ok') {
-            if (json.data.length) {
-                return json.data[json.data.length - 1]
-            }
-        } else if (json.status === 'nok') {
-            setError(json.msg)
-            return undefined;
-        }
-    }
-    setError('Server has returned an empty response');
-    return undefined;
-}
-
-async function initializeMultiDiff(
-    params: BaseParams
-) {
-    const body = params
-    const response = await fetch(
-        `${BASE_URL}/v2/upgrades`,
-        {
-            method: 'POST',
-            body: JSON.stringify(body),
-            headers: {
-                'content-type': 'application/json'
-            }
-        }
-    )
-    if (response) {
-        const json = await response.json()
-        if (json.status === 'ok') {
-            //Return the whole array of found upgrades
-            return json.data
-        } else if (json.status === 'nok') {
-            return Promise.reject(json.msg);
-        }
-    }
-    const msg = 'Server has returned an empty response';
-    return Promise.reject(msg);
-}
+import { DiamondPage } from './containers/diamond/DiamondPage';
+import { ApiService } from './lib/api/api_service';
 
 export interface BaseParams {
     address?: string,
@@ -103,12 +22,24 @@ export interface BaseParams {
     network?: string,
 }
 
-interface StagingParams {
+export interface DiamondParams {
+    address?: string,
+    network?: string,
+    selectedBucket?: number
+}
+
+export interface WithProxyType {
+    proxyType: 'erc1967' | 'diamond'
+}
+
+export interface StagingParams {
     id: string
 }
 
 export const DiffRoutes = () => {
     const [error, setError] = useState(undefined);
+    const [breadcrumb, setBreadcrumb] = useState(undefined);
+    const apiService = new ApiService();
 
     const stagingDiffFetch = (params: StagingParams) => {
         let id = params.id;
@@ -116,15 +47,19 @@ export const DiffRoutes = () => {
             setError('Id should not be null when querying staging')
         }
 
-        return initializeStagingDiff(params, setError)
+        return apiService.fetchStagingDiff(params)
     }
 
     const diffFetch = (params: BaseParams) => {
-        return initializeDiff(params, setError)
+        return apiService.fetchSingleDiff(params)
     }
 
     const multiDiffFetch = (params: BaseParams) => {
-        return initializeMultiDiff(params)
+        return apiService.fetchMultiDiff(params)
+    }
+
+    const diamondFetch = (params: BaseParams) => {
+        return apiService.fetchDiamondEvents(params)
     }
 
     const baseMatch = useMatch("/diffs/:network/:address/:new_impl");
@@ -132,7 +67,7 @@ export const DiffRoutes = () => {
         return {
             network: baseMatch.params.network,
             address: baseMatch.params.address,
-            new_impl: baseMatch.params.new_impl
+            newImpl: baseMatch.params.new_impl
         };
     }
 
@@ -149,6 +84,38 @@ export const DiffRoutes = () => {
         return {
             id: stagingMatch.params.id
         };
+    }
+
+    const getDiamondParams = () => {
+        const diamondMatch = useMatch("/diamond/:network/:address");
+        const diamondMatchWSelected = useMatch("/diamond/:network/:address/:selected");
+        const match: any = diamondMatch !== null ? diamondMatch : diamondMatchWSelected
+        return {
+            network: match.params.network,
+            address: match.params.address,
+            selectedBucket: match.params.selected
+        };
+    }
+
+    const getDiamondBreadcrumbItems = () => {
+        const diamondParams = getDiamondParams();
+        const path = `/diamond/${diamondParams.network}/${diamondParams.address}`;
+        let result = []
+        if (diamondParams.selectedBucket) {
+            result = [
+                {
+                    title: <Link to={path}>{diamondParams.address}</Link>,
+                },
+                {
+                    title: <span>{diamondParams.selectedBucket}</span>,
+                }
+            ]
+        } else {
+            result = [{
+                title: <span>{diamondParams.address}</span>,
+            }]
+        }
+        return result;
     }
 
     return <Routes>
@@ -175,6 +142,22 @@ export const DiffRoutes = () => {
                         diffFetchHook={multiDiffFetch}
                         error={error}
                         setError={setError}
+                        useSyncStatus
+                    />
+                </Layout>
+            </AppLayout>
+        } />
+        <Route path="/diamond/:network/:proxy/:selected?" element={
+            <AppLayout breadcrumb={{
+                getItems: getDiamondBreadcrumbItems
+            }}>
+                <Layout>
+                    <DiamondPage
+                        getPathParams={getDiamondParams}
+                        diffFetchHook={diamondFetch}
+                        error={error}
+                        setError={setError}
+                        setBreadcrumb={setBreadcrumb}
                     />
                 </Layout>
             </AppLayout>

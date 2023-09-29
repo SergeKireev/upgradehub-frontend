@@ -7,7 +7,7 @@ export const formatDate = (ts: number) => {
 }
 
 export const getKey = (u: Upgrade) => {
-    return `${u.proxy_address.toLowerCase()}${u.current_impl.toLowerCase()}${u.tx_hash}`;
+    return `${u.proxy_address.toLowerCase()}${u.current_impl.toLowerCase()}${u.tx_hash}${u.unavailable_reason}`;
 }
 
 export const deduplicateUpgrades = (upgrades: Upgrade[]): Upgrade[] => {
@@ -22,13 +22,30 @@ export const deduplicateUpgrades = (upgrades: Upgrade[]): Upgrade[] => {
     return newUpgrades;
 }
 
+const compare = (a: number, b: number) => {
+    if (a < b) {
+        return 1;
+    } else if (a > b) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
 export function formatUpgrades(upgrades: Upgrade[]) {
     upgrades = upgrades.sort((a, b) => {
-        if (a.ts < b.ts)
-            return 1;
-        else if (a.ts > b.ts)
-            return -1;
-        else return 0;
+        const ts_comparison = compare(parseInt(a.ts), parseInt(b.ts));
+        if (ts_comparison != 0) {
+            return ts_comparison;
+        } else {
+            const tx_index_comparison = compare(a.tx_index, b.tx_index) || 0;
+            if (tx_index_comparison != 0) {
+                return tx_index_comparison
+            } else {
+                const log_index_comparison = compare(a.log_index, b.log_index) || 0;
+                return log_index_comparison
+            }
+        }
     })
     upgrades = deduplicateUpgrades(upgrades);
     return upgrades;
@@ -47,6 +64,24 @@ function isPreviousEqualCurrent(upgrade: Upgrade) {
     return upgrade.current_impl === upgrade.previous_impl;
 }
 
+export function fillVerifiedOne(upgrade: Upgrade, verified_index: { [address: string]: boolean }) {
+    if (upgrade.diff) {
+        return;
+    }
+
+    if (upgrade.tx_hash === INCEPTION_TX_HASH) {
+        upgrade.unavailable_reason = 'INCEPTION'
+    } else if (isPreviousEqualCurrent(upgrade)) {
+        upgrade.unavailable_reason = 'PREVIOUS_EQUALS_TARGET'
+    } else if (!verified_index[upgrade.previous_impl] && !verified_index[upgrade.current_impl]) {
+        upgrade.unavailable_reason = 'PREVIOUS_AND_TARGET_UNAVAILABLE'
+    } else if (!verified_index[upgrade.previous_impl]) {
+        upgrade.unavailable_reason = 'PREVIOUS_UNAVAILABLE'
+    } else if (!verified_index[upgrade.current_impl]) {
+        upgrade.unavailable_reason = 'TARGET_UNAVAILABLE'
+    }
+}
+
 export function fillVerified(upgrades: Upgrade[], verified_statuses?: VerifiedStatus[]) {
     if (verified_statuses) {
         const index = verified_statuses.reduce((acc, x) => {
@@ -62,16 +97,8 @@ export function fillVerified(upgrades: Upgrade[], verified_statuses?: VerifiedSt
                 } else {
                     x.unavailable_reason = 'INITIALIZATION_UNVERIFIED'
                 }
-            } else if (x.tx_hash === INCEPTION_TX_HASH) {
-                x.unavailable_reason = 'INCEPTION'
-            } else if (isPreviousEqualCurrent(x)) {
-                x.unavailable_reason = 'PREVIOUS_EQUALS_TARGET'
-            } else if (!index[x.previous_impl] && !index[x.current_impl]) {
-                x.unavailable_reason = 'PREVIOUS_AND_TARGET_UNAVAILABLE'
-            } else if (!index[x.previous_impl]) {
-                x.unavailable_reason = 'PREVIOUS_UNAVAILABLE'
-            } else if (!index[x.current_impl]) {
-                x.unavailable_reason = 'TARGET_UNAVAILABLE'
+            } else {
+                fillVerifiedOne(x, index);
             }
         })
     }

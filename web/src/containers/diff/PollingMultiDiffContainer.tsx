@@ -3,7 +3,7 @@ import { BaseParams } from '../../app';
 import { BASE_URL } from '../../config/api';
 import { Upgrade } from '../../lib/upgrade';
 import { PollingAction, PollingComponent, PollingStatus } from '../polling/PollingComponent';
-import { MultiDiffContainer } from "./MultiDiffContainer";
+import { ManagedMultiDiffContainer, MultiDiffContainer } from "./MultiDiffContainer";
 
 interface PollingMultiDiffContainerProps {
     getPathParams: (match: any) => BaseParams
@@ -11,6 +11,7 @@ interface PollingMultiDiffContainerProps {
     setError: (err: string) => void
     error: string
     selectedSearchParam?: number;
+    useSyncStatus: boolean
 }
 
 type MultiDiffDataStatus = 'ok' | 'nok';

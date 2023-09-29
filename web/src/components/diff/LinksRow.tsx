@@ -56,6 +56,10 @@ function getImplLinks(props: LinksRowProps) {
             {oldImplBlockExplorerElement}
             {currentImplBlockExplorerElement}
         </>
+    } else if (props.unavailable_reason === 'REMOVED') {
+        return <>
+            {oldImplBlockExplorerElement}
+        </>
     }
     return <></>
 }

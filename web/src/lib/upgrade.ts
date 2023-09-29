@@ -1,4 +1,4 @@
-import { networkNames } from "ethereum-sources-downloader"
+import { ApiName, networkNames } from "ethereum-sources-downloader"
 import { UnavailableReason } from "./unavailable_reason"
 
 type Network = keyof typeof networkNames
@@ -16,10 +16,29 @@ export interface Upgrade {
     tx_hash: string
     verified?: boolean
     unavailable_reason?: UnavailableReason
+    tx_index: number
+    log_index: number
 }
 
-export interface ImmunefiData {
-    immunefi_program?: string
+export interface DiamondEvent {
+    id?: string,
+    address: string,
+    new_impl: string,
+    action: number,
+    selector: string,
+    function_sig?: string,
+    network: ApiName,
+    tx_hash: string,
+    block_number: number,
+    log_index: number,
+    tx_index: number
+    ts: number,
 }
 
-export type UpgradeWithImmunefi = Upgrade & ImmunefiData
+export interface SimpleDiff {
+    id?: string,
+    proxy_address: string,
+    current_impl: string,
+    previous_impl: string,
+    diff: string
+}
