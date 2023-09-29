@@ -266,6 +266,12 @@ body {
     }
 }
 
+.facet_selector:hover {
+    color: #0000002f;
+    animation: ease-in;
+    text-decoration: none;
+}
+
 .facet_selector_item {
     width: 100%;
     display: flex;

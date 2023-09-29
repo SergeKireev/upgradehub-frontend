@@ -1,4 +1,5 @@
 import { ApiName } from "ethereum-sources-downloader";
+import { DiamondEvent } from "../upgrade";
 
 interface FacetCut {
     address: string,
@@ -36,3 +37,45 @@ export function compressFacetCutActions(facetCutActions: FacetCutSelectorAction[
     }
     return newFacetCutSelectorActions;
 }
+
+function computeActionsKey(actions: FacetCutSelectorAction[]) {
+    return actions.map(x => {
+        return `${x.action}|${x.address}`
+    }).join('|');
+}
+
+export function createSelectorBuckets(diamondEvents: DiamondEvent[]) {
+    const index: { [key: string]: FacetCutSelectorAction[] } = {}
+    const selectorToName: { [key: string]: string } = {}
+    diamondEvents.forEach(d => {
+        if (!index[d.selector]) {
+            index[d.selector] = []
+        }
+        if (!selectorToName[d.selector])
+            selectorToName[d.selector] = d.function_sig !== null ? d.function_sig : d.selector
+
+        index[d.selector].push({
+            action: d.action,
+            address: d.new_impl,
+            ts: (d.ts * 1000).toString()
+        })
+    })
+
+    const keys = Object.keys(index)
+    const selectorNamesBuckets: { [key: string]: string[] } = {};
+    const actionsByBucket: { [key: string]: FacetCutSelectorAction[] } = {};
+    keys.forEach(key => {
+        const actions = compressFacetCutActions(index[key])
+        const actionsKey = computeActionsKey(actions);
+        if (!selectorNamesBuckets[actionsKey])
+            selectorNamesBuckets[actionsKey] = []
+        selectorNamesBuckets[actionsKey].push(selectorToName[key]);
+        actionsByBucket[actionsKey] = actions;
+    })
+
+    return Object.keys(selectorNamesBuckets).map(k => ({
+        selectors: selectorNamesBuckets[k],
+        actions: actionsByBucket[k]
+    }));
+}
+

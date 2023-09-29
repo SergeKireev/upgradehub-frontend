@@ -100,13 +100,20 @@ export const DiffRoutes = () => {
     const getDiamondBreadcrumbItems = () => {
         const diamondParams = getDiamondParams();
         const path = `/diamond/${diamondParams.network}/${diamondParams.address}`;
-        const result = [{
-            title: <Link to={path}>{diamondParams.address}</Link>,
-        }]
+        let result = []
         if (diamondParams.selectedBucket) {
-            result.push({
-                title: <Link to={`${path}/${parseInt(diamondParams.selectedBucket)-1}`}>{diamondParams.selectedBucket}</Link>,
-            })
+            result = [
+                {
+                    title: <Link to={path}>{diamondParams.address}</Link>,
+                },
+                {
+                    title: <span>{diamondParams.selectedBucket}</span>,
+                }
+            ]
+        } else {
+            result = [{
+                title: <span>{diamondParams.address}</span>,
+            }]
         }
         return result;
     }
