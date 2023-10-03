@@ -243,33 +243,6 @@ body {
 
 .facet_selector {
     background-color: #ffffffdf;
-    a:link {
-        color: white;
-        animation: ease-out;
-        text-decoration: none;
-    }
-
-    a:visited {
-        color: white;
-        text-decoration: none;
-    }
-
-    a:hover {
-        color: #ffffffaf;
-        animation: ease-in;
-        text-decoration: none;
-    }
-
-    a:active {
-        color: #ffffffdf;
-        text-decoration: none;
-    }
-}
-
-.facet_selector:hover {
-    color: #0000002f;
-    animation: ease-in;
-    text-decoration: none;
 }
 
 .facet_selector_item {
@@ -283,6 +256,12 @@ body {
     font-family: 'Courier New', Courier, monospace;
     font-weight: 500;
     margin-left: 20px;
+}
+
+.facet_selector:hover {
+    background-color: #00000001;
+    animation: ease-in;
+    text-decoration: none;
 }
 
 .app_breadcrumb {

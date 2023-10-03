@@ -1,20 +1,10 @@
-import { ApiName } from "ethereum-sources-downloader";
 import { DiamondEvent } from "../upgrade";
-
-interface FacetCut {
-    address: string,
-    action: number,
-    freezable?: number,
-    selectors: string[],
-}
 
 export interface FacetCutSelectorAction {
     action: number,
     address: string,
     ts: string
 }
-
-type BucketedFacetCutSelectorAction = { [key: string]: FacetCutSelectorAction[] }
 
 export function compressFacetCutActions(facetCutActions: FacetCutSelectorAction[]): FacetCutSelectorAction[] {
     const newFacetCutSelectorActions: FacetCutSelectorAction[] = []
@@ -65,6 +55,7 @@ export function createSelectorBuckets(diamondEvents: DiamondEvent[]) {
     const selectorNamesBuckets: { [key: string]: string[] } = {};
     const actionsByBucket: { [key: string]: FacetCutSelectorAction[] } = {};
     keys.forEach(key => {
+        // Replaces delete-inserts by replace
         const actions = compressFacetCutActions(index[key])
         const actionsKey = computeActionsKey(actions);
         if (!selectorNamesBuckets[actionsKey])
