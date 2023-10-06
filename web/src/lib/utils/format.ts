@@ -22,31 +22,42 @@ export const deduplicateUpgrades = (upgrades: Upgrade[]): Upgrade[] => {
     return newUpgrades;
 }
 
-const compare = (a: number, b: number) => {
-    if (a < b) {
+export const compareNumbers = (a: number, b: number) => {
+    if (a > b) {
         return 1;
-    } else if (a > b) {
+    } else if (a < b) {
         return -1;
     } else {
         return 0;
     }
 }
 
-export function formatUpgrades(upgrades: Upgrade[]) {
-    upgrades = upgrades.sort((a, b) => {
-        const ts_comparison = compare(parseInt(a.ts), parseInt(b.ts));
-        if (ts_comparison != 0) {
-            return ts_comparison;
+export interface EventOrderable {
+    ts: number | string,
+    tx_index: number,
+    log_index: number
+}
+
+export const eventOrderableComparison = (a: EventOrderable, b: EventOrderable) => {
+    const ts_a = typeof(a.ts) === 'string' ? parseInt(a.ts) : a.ts
+    const ts_b = typeof(b.ts) === 'string' ? parseInt(b.ts) : b.ts
+    const ts_comparison = compareNumbers(ts_a, ts_b);
+    if (ts_comparison != 0) {
+        return ts_comparison;
+    } else {
+        const tx_index_comparison = compareNumbers(a.tx_index, b.tx_index) || 0;
+        if (tx_index_comparison != 0) {
+            return tx_index_comparison
         } else {
-            const tx_index_comparison = compare(a.tx_index, b.tx_index) || 0;
-            if (tx_index_comparison != 0) {
-                return tx_index_comparison
-            } else {
-                const log_index_comparison = compare(a.log_index, b.log_index) || 0;
-                return log_index_comparison
-            }
+            const log_index_comparison = compareNumbers(a.log_index, b.log_index) || 0;
+            return log_index_comparison
         }
-    })
+    }
+}
+
+export function formatUpgrades(upgrades: Upgrade[]) {
+    //reverse order
+    upgrades = upgrades.sort((a, b) => -eventOrderableComparison(a, b));
     upgrades = deduplicateUpgrades(upgrades);
     return upgrades;
 }

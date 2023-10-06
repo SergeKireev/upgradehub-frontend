@@ -1,9 +1,19 @@
 import { DiamondEvent } from "../upgrade";
+import { compareNumbers, eventOrderableComparison } from "../utils/format";
 
 export interface FacetCutSelectorAction {
     action: number,
     address: string,
-    ts: string
+    ts: string,
+    tx_index: number,
+    log_index: number
+}
+
+interface FacetComparable {
+    ts: string | number,
+    tx_index: number,
+    log_index: number
+    action: number
 }
 
 export function compressFacetCutActions(facetCutActions: FacetCutSelectorAction[]): FacetCutSelectorAction[] {
@@ -15,7 +25,7 @@ export function compressFacetCutActions(facetCutActions: FacetCutSelectorAction[
             facetCutActions[i].action === 2 &&
             facetCutActions[i + 1].action === 0) {
             newFacetCutSelectorActions.push({
-                address: facetCutActions[i + 1].address,
+                ...facetCutActions[i + 1],
                 action: 1,
                 ts: facetCutActions[i].ts
             });
@@ -34,9 +44,20 @@ function computeActionsKey(actions: FacetCutSelectorAction[]) {
     }).join('|');
 }
 
+function eventOrderableComparisonWithAction(a: FacetComparable, b: FacetComparable) {
+    const comparison = eventOrderableComparison(a, b);
+    if (comparison != 0)
+        return comparison;
+    else {
+        //Prefer having add after remove
+        return -compareNumbers(a.action, b.action);
+    }
+}
+
 export function createSelectorBuckets(diamondEvents: DiamondEvent[]) {
     const index: { [key: string]: FacetCutSelectorAction[] } = {}
     const selectorToName: { [key: string]: string } = {}
+    diamondEvents.sort(eventOrderableComparisonWithAction);
     diamondEvents.forEach(d => {
         if (!index[d.selector]) {
             index[d.selector] = []
@@ -47,7 +68,9 @@ export function createSelectorBuckets(diamondEvents: DiamondEvent[]) {
         index[d.selector].push({
             action: d.action,
             address: d.new_impl,
-            ts: (d.ts * 1000).toString()
+            ts: (d.ts * 1000).toString(),
+            tx_index: d.tx_index,
+            log_index: d.log_index
         })
     })
 
