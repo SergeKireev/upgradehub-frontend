@@ -22,10 +22,15 @@ export interface BaseParams {
     network?: string,
 }
 
+export interface SelectedBucket {
+    facetName: string
+    groupIndex: number
+}
+
 export interface DiamondParams {
     address?: string,
     network?: string,
-    selectedBucket?: number
+    selectedBucket?: SelectedBucket
 }
 
 export interface WithProxyType {
@@ -88,12 +93,15 @@ export const DiffRoutes = () => {
 
     const getDiamondParams = () => {
         const diamondMatch = useMatch("/diamond/:network/:address");
-        const diamondMatchWSelected = useMatch("/diamond/:network/:address/:selected");
+        const diamondMatchWSelected = useMatch("/diamond/:network/:address/:facetName/:groupIndex");
         const match: any = diamondMatch !== null ? diamondMatch : diamondMatchWSelected
         return {
             network: match.params.network,
             address: match.params.address,
-            selectedBucket: match.params.selected
+            selectedBucket: match.params.facetName ? {
+                facetName: match.params.facetName,
+                groupIndex: match.params.groupIndex
+            } : undefined
         };
     }
 
@@ -107,7 +115,10 @@ export const DiffRoutes = () => {
                     title: <Link to={path}>{diamondParams.address}</Link>,
                 },
                 {
-                    title: <span>{diamondParams.selectedBucket}</span>,
+                    title: <span>{diamondParams.selectedBucket.facetName}</span>,
+                },
+                {
+                    title: <span>{diamondParams.selectedBucket.groupIndex}</span>,
                 }
             ]
         } else {
@@ -147,7 +158,7 @@ export const DiffRoutes = () => {
                 </Layout>
             </AppLayout>
         } />
-        <Route path="/diamond/:network/:proxy/:selected?" element={
+        <Route path="/diamond/:network/:proxy/:facetname?/:group_index?" element={
             <AppLayout breadcrumb={{
                 getItems: getDiamondBreadcrumbItems
             }}>

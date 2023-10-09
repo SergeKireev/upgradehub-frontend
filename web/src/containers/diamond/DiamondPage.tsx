@@ -20,8 +20,10 @@ interface FacetSelectorContainerProps {
 
 interface FacetSelectorState {
     diamondData: DiamondData,
-    buckets: SelectorsBucket[]
+    buckets: CategorizedSelectorBuckets
 }
+
+export type CategorizedSelectorBuckets = { [facetName: string]: SelectorsBucket[] }
 
 export interface DiamondData {
     diamondEvents: DiamondEvent[],
@@ -32,6 +34,23 @@ export interface DiamondData {
 export interface SelectorsBucket {
     selectors: string[],
     actions: FacetCutSelectorAction[]
+}
+
+function categorizeByName(buckets: SelectorsBucket[], diamondData: DiamondData): { [facetName: string]: SelectorsBucket[] } {
+    const namesIndex = diamondData.verifiedStatuses.reduce((acc, v) => {
+        acc[v.address] = v.name;
+        return acc;
+    }, {})
+    const index = {}
+    buckets.forEach(b => {
+        let facetName = namesIndex[b.actions[0].address.toLowerCase()] || '';
+        facetName = facetName.toLowerCase();
+        if (!index[facetName]) {
+            index[facetName] = []
+        }
+        index[facetName].push(b);
+    })
+    return index;
 }
 
 function handleDiamondData(
@@ -45,10 +64,20 @@ function handleDiamondData(
 
     const buckets: SelectorsBucket[] = createSelectorBuckets(d.diamondEvents);
     buckets.sort((a, b) => (getLatestTimestamp(b) - getLatestTimestamp(a)));
+
+    const categorized = categorizeByName(buckets, d);
     setFacetSelectorState({
         diamondData: d,
-        buckets: buckets
+        buckets: categorized
     })
+}
+
+function getNames(d: DiamondData) {
+    return d?.verifiedStatuses?.reduce((acc, x) => {
+        const name = x.name || ''
+        acc[name.toLowerCase()] = name;
+        return acc;
+    }, {});
 }
 
 export const DiamondPage = (props: FacetSelectorContainerProps) => {
@@ -70,11 +99,17 @@ export const DiamondPage = (props: FacetSelectorContainerProps) => {
         />
     }
 
+    const casedNamesIndex = getNames(facetSelectorState.diamondData);
+
     if (pathParams.selectedBucket) {
         return <DiamondMultiDiffContainer
             address={pathParams.address}
             network={pathParams.network as ApiName}
-            bucket={facetSelectorState.buckets[pathParams.selectedBucket - 1]}
+            bucket={
+                facetSelectorState.buckets
+                [pathParams.selectedBucket.facetName.toLowerCase()]
+                [pathParams.selectedBucket.groupIndex - 1]
+            }
             diamondData={facetSelectorState.diamondData}
         />
     }
@@ -83,6 +118,7 @@ export const DiamondPage = (props: FacetSelectorContainerProps) => {
         style={{
             background: 'white'
         }}
+        casedNamesIndex={casedNamesIndex}
         buckets={facetSelectorState?.buckets}
         diamondData={facetSelectorState?.diamondData}
     />

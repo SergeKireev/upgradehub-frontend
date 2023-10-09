@@ -241,6 +241,10 @@ body {
     padding: 10px;
 }
 
+.facet_selector_card {
+    margin: 10px;
+}
+
 .facet_selector {
     background-color: #ffffffdf;
 }
@@ -259,7 +263,7 @@ body {
 }
 
 .facet_selector:hover {
-    background-color: #00000001;
+    background-color: #00000005;
     animation: ease-in;
     text-decoration: none;
 }
@@ -295,4 +299,13 @@ body {
     font-weight: 500;
     color: rgb(0, 21, 41);
     font-size: 14px;
+}
+
+.facet_selector_title {
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    color: rgb(0, 21, 41);
+    font-size: 16px;
+    background-color: white;
 }
