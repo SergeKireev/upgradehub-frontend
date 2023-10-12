@@ -1,4 +1,4 @@
 export interface SyncStatusData {
-    last_update_ts: string,
-    processing: boolean
+  last_update_ts: string;
+  processing: boolean;
 }
