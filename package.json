@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build-dev": "mkdir -p web/dist && cp dev/index.html web/dist/index.html && cp web/assets/logo.png web/dist/logo.png && webpack serve --mode=development",
-    "build-watch": "webpack --watch",
+    "build-dev-serve": "mkdir -p web/dist && cp web/assets/* web/dist && cp dev/index.html web/dist && webpack serve --mode=development",
+    "build-dev": "mkdir -p web/dist  && cp web/assets/* web/dist && webpack --mode=development",
     "build": "webpack --mode=production",
     "webpack-debug": "webpack --help"
   },
@@ -32,7 +32,9 @@
     "chai": "^4.3.6",
     "copyfiles": "^2.4.1",
     "css-loader": "^6.7.1",
-    "html-webpack-plugin": "^5.5.0",
+    "dotenv": "^16.3.1",
+    "dotenv-webpack": "^8.0.1",
+    "html-webpack-plugin": "^5.5.3",
     "sass": "^1.54.0",
     "sass-loader": "^13.0.2",
     "source-map-loader": "^4.0.0",

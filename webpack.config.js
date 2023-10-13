@@ -1,4 +1,7 @@
 const path = require("path");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
+require('dotenv').config();
 
 module.exports = [
   {
@@ -7,6 +10,15 @@ module.exports = [
       path: path.resolve(__dirname, "web/dist"),
     },
     entry: path.resolve(__dirname, "web/src/index.tsx"),
+    plugins: [
+      new Dotenv(),
+      new HtmlWebpackPlugin({
+        template: './web/index.html',
+        templateParameters: {
+            'BASE_URL': process.env.REACT_APP_URL
+        }
+    })
+    ],
     module: {
       rules: [
         {
