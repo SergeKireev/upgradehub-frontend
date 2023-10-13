@@ -14,9 +14,7 @@ module.exports = [
       new Dotenv(),
       new HtmlWebpackPlugin({
         template: './web/index.html',
-        templateParameters: {
-            'BASE_URL': process.env.REACT_APP_URL
-        }
+        inject: false
     })
     ],
     module: {
