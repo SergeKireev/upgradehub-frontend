@@ -88,19 +88,19 @@ const mergeHunks = (hunkA: HunkObject, hunkB: HunkObject) => {
     _hunkB = tmp;
   }
 
-  const newOldLineNumberIndex = hunkA.changes.findIndex(
-    (x) => x.oldLineNumber === hunkB.oldStart,
+  const newOldLineNumberIndex = _hunkA.changes.findIndex(
+    (x) => x.oldLineNumber === _hunkB.oldStart,
   );
-  const newChanges = hunkA.changes
+  const newChanges = _hunkA.changes
     .slice(0, newOldLineNumberIndex)
-    .concat(hunkB.changes);
+    .concat(_hunkB.changes);
 
   const result: HunkObject = {
-    ...hunkA,
-    newLines: hunkB.newStart - hunkA.newStart + hunkB.newLines,
-    oldLines: hunkB.oldStart - hunkA.oldStart + hunkB.oldLines,
-    newStart: hunkA.newStart,
-    oldStart: hunkA.oldStart,
+    ..._hunkA,
+    newLines: _hunkB.newStart - _hunkA.newStart + _hunkB.newLines,
+    oldLines: _hunkB.oldStart - _hunkA.oldStart + _hunkB.oldLines,
+    newStart: _hunkA.newStart,
+    oldStart: _hunkA.oldStart,
     changes: newChanges,
   };
   return result;
