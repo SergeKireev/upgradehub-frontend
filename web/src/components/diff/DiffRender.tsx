@@ -1,15 +1,19 @@
 import { ApiName, fetchFiles } from "ethereum-sources-downloader";
-import React, { useEffect, useMemo, useState } from "react";
-import { tokenize, parseDiff, Diff, Decoration } from "react-diff-view";
+import React, { useEffect, useState } from "react";
+import {
+  tokenize,
+  parseDiff,
+  Diff,
+  Decoration,
+  DiffType,
+} from "react-diff-view";
 import { ExpandableHunk, HunkObject } from "./hunk/ExpandableHunk";
 import { RegularHunk } from "./hunk/RegularHunk";
 import * as refractor from "refractor";
 import { v4 as uuidv4 } from "uuid";
-
-const trimFilePath = (filePath: string) => {
-  const fragments = filePath.split("/");
-  return fragments.slice(3).join("/");
-};
+import { trimFilePath } from "../../lib/utils/format";
+import { FileHeader } from "./FileHeader";
+import { MODIFICATION_ORDER } from "../../lib/utils/constants";
 
 interface DiffRenderProps {
   address: string;
@@ -213,19 +217,27 @@ export function DiffRender(props: DiffRenderProps) {
     newRevision,
     type,
     hunks,
-  }) => (
-    <div key={trimFilePath(newPath)} className="file_change">
-      <div className="file_header">{trimFilePath(newPath)}</div>
-      <RenderDiff
-        hunks={hunks}
-        oldCode={oldCode}
-        oldPath={oldPath}
-        oldRevision={oldRevision}
-        newRevision={newRevision}
-        diffType={type}
-      />
-    </div>
-  );
-
+  }) => {
+    return (
+      <div key={trimFilePath(newPath)} className="file_change">
+        <FileHeader
+          type={type}
+          newPath={newPath}
+          oldPath={oldPath}
+          child={
+            <RenderDiff
+              hunks={hunks}
+              oldCode={oldCode}
+              oldPath={oldPath}
+              oldRevision={oldRevision}
+              newRevision={newRevision}
+              diffType={type}
+            />
+          }
+        />
+      </div>
+    );
+  };
+  filesWithoutError.sort((a, b) => (MODIFICATION_ORDER[a.type] - MODIFICATION_ORDER[b.type]));
   return <>{filesWithoutError.map(renderFile)}</>;
 }

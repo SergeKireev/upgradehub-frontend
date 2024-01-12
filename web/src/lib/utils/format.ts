@@ -149,3 +149,8 @@ export function trimFirstUpgradeIfEmpty(upgrades: Upgrade[]) {
       ) && !(u.unavailable_reason === "INCEPTION"),
   );
 }
+
+export function trimFilePath(filePath: string) {
+  const fragments = filePath.split("/");
+  return fragments.slice(3).join("/");
+}
