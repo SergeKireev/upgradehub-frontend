@@ -12,6 +12,8 @@ import { BreadcrumbProps } from "../common/AppLayout";
 import { DiamondMultiDiffContainer } from "./DiamondMultiDiffContainer";
 import { FacetSelector } from "./FacetSelector";
 
+const UNVERIFIED_FACET_NAME = "Facet contract not verified";
+
 interface FacetSelectorContainerProps {
   getPathParams: (match: any) => DiamondParams;
   diffFetchHook: (searchParams: DiamondParams) => Promise<DiamondData>;
@@ -49,8 +51,7 @@ function getFacetNameFromActions(
     const name = names[a.address.toLowerCase()];
     return !!name;
   });
-  console.log("FOUND", found);
-  return found ? names[found.address.toLowerCase()] : "Unknown";
+  return found ? names[found.address.toLowerCase()] : UNVERIFIED_FACET_NAME;
 }
 
 function categorizeByName(
@@ -62,13 +63,9 @@ function categorizeByName(
     return acc;
   }, {});
   const index = {};
-  console.log("CATEGORIZE");
   buckets.forEach((b, i) => {
-    console.log("BUCKET", i);
     let facetName = getFacetNameFromActions(b.actions, namesIndex);
-    console.log("BUCKET", i, "FINISHED", facetName);
     facetName = facetName.toLowerCase();
-    console.log("LOWER CASED");
     if (!index[facetName]) {
       index[facetName] = [];
     }
@@ -90,7 +87,6 @@ function handleDiamondData(
   buckets.sort((a, b) => getLatestTimestamp(b) - getLatestTimestamp(a));
 
   const categorized = categorizeByName(buckets, d);
-  console.log("CATEGORIZED");
   setFacetSelectorState({
     diamondData: d,
     buckets: categorized,
@@ -99,7 +95,7 @@ function handleDiamondData(
 
 function getNames(d: DiamondData) {
   return d?.verifiedStatuses?.reduce((acc, x) => {
-    const name = x.name || "";
+    const name = !x.name ? UNVERIFIED_FACET_NAME : x.name;
     acc[name.toLowerCase()] = name;
     return acc;
   }, {});
