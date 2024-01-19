@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build-dev-serve": "mkdir -p web/dist && cp web/assets/* web/dist && cp dev/index.html web/dist && webpack serve --mode=development",
+    "build-dev-serve": "mkdir -p web/dist && cp web/assets/* web/dist && cp web/index.html web/dist && webpack serve --mode=development",
     "build-dev": "mkdir -p web/dist  && cp web/assets/* web/dist && webpack --mode=development",
     "build": "webpack --mode=production",
     "webpack-debug": "webpack --help"

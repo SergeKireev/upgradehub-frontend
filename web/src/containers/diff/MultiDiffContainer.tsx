@@ -194,6 +194,8 @@ export function MultiDiffContainer(
   const [verifiedImpls, setVerifiedImpls] = useState(undefined);
   const pathParams = props.getPathParams(props);
 
+  document.title = `${pathParams.network} - ${pathParams.address}`;
+
   let upgrades = formatUpgrades(props.data?.upgrades || []);
 
   useEffect(() => {

@@ -106,6 +106,8 @@ export const DiamondPage = (props: FacetSelectorContainerProps) => {
 
   const pathParams = props.getPathParams(props);
 
+  document.title = `${pathParams.network} - ${pathParams.address}`;
+
   useEffect(() => {
     props
       .diffFetchHook(pathParams)

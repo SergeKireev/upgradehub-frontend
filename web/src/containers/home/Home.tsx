@@ -9,6 +9,7 @@ export const HomeContent = () => {
     const url = `/diffs/${val.network}/${val.address}`;
     setRedirectUrl(url);
   };
+  document.title = 'Upgradehub - Home';
   if (!redirectUrl) {
     return (
       <AppLayout>
