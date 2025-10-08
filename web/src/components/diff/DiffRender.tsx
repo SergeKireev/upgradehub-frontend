@@ -1,4 +1,4 @@
-import { ApiName, fetchFiles } from "ethereum-sources-downloader";
+import { ApiName, fetchFilesV2 } from "ethereum-sources-downloader";
 import React, { useEffect, useState } from "react";
 import {
   tokenize,
@@ -14,11 +14,21 @@ import { v4 as uuidv4 } from "uuid";
 import { trimFilePath } from "../../lib/utils/format";
 import { FileHeader } from "./FileHeader";
 import { MODIFICATION_ORDER } from "../../lib/utils/constants";
+import { legacyNamesToChainId } from "../../lib/networks";
 
 interface DiffRenderProps {
   address: string;
   network: string;
   diff?: string;
+}
+
+function adaptNetworkName(network: number | string) {
+  const lowerCaseNetwork = network.toString().toLowerCase()
+  if (isNaN(parseInt(lowerCaseNetwork))) {
+    return legacyNamesToChainId[lowerCaseNetwork];    
+  } else {
+    return network;
+  }
 }
 
 async function fetchOldCode(
@@ -30,7 +40,10 @@ async function fetchOldCode(
    * Everything should be fine since we have already check the source
    * has verified code and is not a proxy
    */
-  const response = await fetchFiles(network as ApiName, address);
+
+  const chainId = adaptNetworkName(network);
+
+  const response = await fetchFilesV2(chainId, address, process.env.ETHERSCAN_API_KEY);
   setOldCode(response);
 }
 
