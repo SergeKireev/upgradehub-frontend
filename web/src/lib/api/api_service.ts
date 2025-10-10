@@ -43,12 +43,14 @@ export class ApiService {
   async fetchMultiDiff(params: BaseParams) {
     const _this = this;
     const body = params;
+    body.scan = true;
     return _this.fetchApi<BaseParams, Upgrade[]>("/v2/upgrades", body);
   }
 
   async fetchSingleDiff(params: BaseParams) {
     const _this = this;
     const body = params;
+    body.scan = true;
     const upgrades: Upgrade[] = await _this.fetchApi<BaseParams, Upgrade[]>(
       "/v2/upgrades",
       body,

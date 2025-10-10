@@ -20,6 +20,7 @@ export interface BaseParams {
   address?: string;
   newImpl?: string;
   network?: string;
+  scan?: boolean;
 }
 
 export interface SelectedBucket {
