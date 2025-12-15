@@ -27,14 +27,6 @@ export const AppLayout = (props: HTMLProps<void> & WithBreadcrumb) => {
               </a>
             </Col>
             <Col className="space_header">.</Col>
-            <Col className="header_socials">
-              <a href="https://twitter.com/cergyk1337">
-                <TwitterOutlined style={{ fontSize: "20px" }} />
-              </a>
-              <a href="https://github.com/SergeKireev/upgradehub-issues">
-                <GithubOutlined style={{ fontSize: "20px" }} />
-              </a>
-            </Col>
           </Row>
         </div>
       </Header>
